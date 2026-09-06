@@ -968,9 +968,10 @@
       // 切换图标：月亮(夜间) ↔ 太阳(白天)
       document.getElementById('theme-icon-moon').style.display = dark ? 'none' : 'block';
       document.getElementById('theme-icon-sun').style.display = dark ? 'block' : 'none';
-      // 切换底图样式，完成后重载数据图层
-      map.once('styledata', () => {
-        loadData();
+      // 切换底图样式，完成后重载数据图层（await 确保 source 就绪后再重绘缓冲区）
+      map.once('styledata', async () => {
+        await loadData();
+        updateBuffer();
         renderNetwork();
       });
       map.setStyle(dark ? DARK_STYLE : LIGHT_STYLE);
