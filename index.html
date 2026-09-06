@@ -509,6 +509,29 @@
     }
     .net-toggle input { cursor: pointer; }
 
+    /* ===== 数据加载失败提示（file:// 直接打开时） ===== */
+    #load-error {
+      position: fixed;
+      left: 50%; bottom: 40px;
+      transform: translateX(-50%);
+      max-width: 520px;
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 14px 20px;
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--text);
+      box-shadow: var(--shadow-md);
+      z-index: 50;
+    }
+    #load-error code {
+      background: var(--surface-2);
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-size: 11px;
+    }
+
     /* ===== 移动端适配：面板变为底部抽屉，顶栏精简 ===== */
     @media (max-width: 720px) {
       header { padding: 0 16px; }
@@ -651,6 +674,11 @@
     </div>
   </div>
 
+  <div id="load-error" style="display:none;">
+    ⚠️ <b>数据加载失败</b>：你可能是直接双击打开的 index.html。file:// 协议下浏览器会拦截 JSON 数据请求，地图能显示但出片点和地铁站加载不出来。<br>
+    请在项目目录运行 <code>python -m http.server 8000</code>，然后访问 <code>http://localhost:8000</code>。
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
   <script>
     // ============ 1. 初始化地图（OpenFreeMap 矢量底图，免费无需 key） ============
@@ -677,10 +705,17 @@
     let metroData = [];
 
     async function loadData() {
-      const [spots, metro] = await Promise.all([
-        fetch('spots.json').then(r => r.json()),
-        fetch('metro.json').then(r => r.json())
-      ]);
+      let spots, metro;
+      try {
+        [spots, metro] = await Promise.all([
+          fetch('spots.json').then(r => r.json()),
+          fetch('metro.json').then(r => r.json())
+        ]);
+      } catch (err) {
+        // 常见原因：直接双击 index.html 走 file:// 协议，浏览器拦截了 fetch
+        document.getElementById('load-error').style.display = 'block';
+        return;
+      }
 
       // 直接用原始 WGS-84 坐标（OpenFreeMap/OSM 底图无需纠偏）
       spotsData = spots.spots;
