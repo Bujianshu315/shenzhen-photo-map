@@ -1,0 +1,16 @@
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 备份与压缩产物（不入库）
+*.zip
+*-备份-*/
+
+# 本地调试
+*.log
