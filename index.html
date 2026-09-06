@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>城市出片点地图 · Demo</title>
+  <meta name="description" content="深圳出片地图：面向摄影爱好者的深圳拍照机位地图，提供 GIS 缓冲区分析与地铁通达性统计。" />
+  <title>深圳出片地图</title>
 
   <!-- 开源地图库 MapLibre -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
@@ -139,7 +140,7 @@
     #map { position: absolute; inset: 0; }
 
     .legend {
-      position: absolute; right: 20px; bottom: 32px;
+      position: absolute; right: 20px; bottom: 56px;
       background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -508,9 +509,18 @@
     }
     .net-toggle input { cursor: pointer; }
 
+    /* ===== 移动端适配：面板变为底部抽屉，顶栏精简 ===== */
     @media (max-width: 720px) {
-      #wrap { flex-direction: column; }
-      #panel { width: 100%; max-height: 45%; border-left: none; border-top: 1px solid var(--border); }
+      header { padding: 0 16px; }
+      .brand .subtitle { display: none; }
+      .header-meta { display: none; }
+      .top-tab { padding: 8px 12px; font-size: 12px; }
+      #panel {
+        top: auto; bottom: 12px; left: 12px; right: 12px;
+        width: auto; max-height: 55%;
+        transform: translateY(calc(100% + 24px));
+      }
+      .legend { right: 12px; bottom: 64px; padding: 12px 14px; }
     }
   </style>
 </head>
@@ -519,7 +529,7 @@
     <div class="brand">
       <div class="logo">◈</div>
       <div>
-        <div class="title">城市出片点地图</div>
+        <div class="title">深圳出片地图</div>
         <div class="subtitle">GIS 缓冲区分析 · 地铁通达性统计</div>
       </div>
     </div>
@@ -527,7 +537,7 @@
       <button class="top-tab active" id="top-tab-explore" data-tab="explore">探索</button>
       <button class="top-tab" id="top-tab-plan" data-tab="plan">我的计划<span class="tab-count" id="plan-count">0</span></button>
     </div>
-    <div class="header-meta"><span class="dot"></span>深圳 · 示例数据</div>
+    <div class="header-meta"><span class="dot"></span>深圳 · 持续收录中</div>
   </header>
 
   <div id="wrap">
@@ -535,8 +545,8 @@
       <div class="legend">
         <div class="legend-title">图 例</div>
         <div class="row"><span class="swatch spot"></span>出片点</div>
-        <div class="row"><span class="swatch metro"></span>地铁口</div>
-        <div class="row"><span class="swatch buffer"></span>缓冲区（500m）</div>
+        <div class="row"><span class="swatch metro"></span>地铁站</div>
+        <div class="row"><span class="swatch buffer"></span>缓冲区（<span id="legend-radius">500</span>m）</div>
         <div class="row"><span class="swatch me"></span>我的位置</div>
       </div>
 
@@ -566,7 +576,7 @@
       <div class="tab-view" id="tab-explore">
         <div class="panel-head">
           <h3>搜索地点</h3>
-          <p>输入出片点或地铁口名称，快速定位。</p>
+          <p>输入出片点或地铁站名称，快速定位。</p>
           <div class="search-box">
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" id="search-input" placeholder="搜索地点，如：深圳湾 / 后海站" autocomplete="off" />
@@ -579,7 +589,7 @@
             <div class="icon">📍</div>
             <div class="title">从选择一个出片点开始</div>
             <div class="desc">
-              点击地图上的 <b>蓝色出片点</b>，或在上方搜索框里找地点，系统会自动画出缓冲区、统计附近地铁口数量。
+              点击地图上的 <b>蓝色出片点</b>，或在上方搜索框里找地点，系统会自动画出缓冲区、统计附近地铁站数量。
             </div>
           </div>
 
@@ -611,7 +621,7 @@
 
             <div class="metric">
               <div class="metric-num" id="c-count">0</div>
-              <div class="metric-label">缓冲区内地铁口数量</div>
+              <div class="metric-label">缓冲区内地铁站数量</div>
             </div>
             <div class="metro-list" id="c-metro"></div>
           </div>
@@ -655,6 +665,11 @@
     map.addControl(new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }), 'bottom-left');
     // 左下角（缩放按钮上方）：比例尺
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
+    // 右下角：数据来源署名（地铁数据来自 OSM，ODbL 协议要求署名）
+    map.addControl(new maplibregl.AttributionControl({
+      compact: true,
+      customAttribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | © <a href="https://openfreemap.org" target="_blank">OpenFreeMap</a>'
+    }), 'bottom-right');
 
     // ============ 2. 加载数据并标注 ============
     let metroFC = null;
@@ -817,7 +832,7 @@
 
       const listEl = document.getElementById('c-metro');
       if (count === 0) {
-        listEl.innerHTML = '<div style="color:#b5b5b5;font-size:13px;line-height:1.7;">这个范围内暂时没有地铁口，通达性较弱。</div>';
+        listEl.innerHTML = '<div style="color:#b5b5b5;font-size:13px;line-height:1.7;">这个范围内暂时没有地铁站，通达性较弱。</div>';
       } else {
         listEl.innerHTML = within.features
           .map(f => `<div class="m-item"><span class="m-dot"></span>${f.properties.name}<span class="m-line">${f.properties.line}</span></div>`)
@@ -826,7 +841,9 @@
     }
 
     document.getElementById('radius').addEventListener('input', () => {
-      document.getElementById('radius-val').textContent = document.getElementById('radius').value;
+      const r = document.getElementById('radius').value;
+      document.getElementById('radius-val').textContent = r;
+      document.getElementById('legend-radius').textContent = r;
       updateBuffer();
     });
 
@@ -861,7 +878,7 @@
           html += spotItems.map(r => `<div class="sr-item" data-lng="${r.lng}" data-lat="${r.lat}" data-name="${r.name}" data-type="spot"><span class="sr-dot spot"></span><div><div class="sr-name">${r.name}</div><div class="sr-sub">${r.sub}</div></div></div>`).join('');
         }
         if (metroItems.length) {
-          html += '<div class="sr-group">地铁口</div>';
+          html += '<div class="sr-group">地铁站</div>';
           html += metroItems.map(r => `<div class="sr-item" data-lng="${r.lng}" data-lat="${r.lat}" data-name="${r.name}" data-type="metro"><span class="sr-dot metro"></span><div><div class="sr-name">${r.name}</div><div class="sr-sub">${r.sub}</div></div></div>`).join('');
         }
         searchResults.innerHTML = html;
@@ -1210,10 +1227,6 @@
     }
 
     document.getElementById('net-toggle').addEventListener('change', renderNetwork);
-
-    // 定位后同步 myLocation，并重绘网络
-    // （在 locateMe 成功后调用）
-    const originalLocateSuccess = null; // 占位，下面直接改 locateMe
 
     // 等底图样式加载完成后再加图层，避免时序报错
     map.on('load', () => {
