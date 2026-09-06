@@ -1,0 +1,77 @@
+{
+  "说明": "出片点数据。坐标用【经度 lng, 纬度 lat】。image 是示例图 URL，可替换成你自己的摄影作品。",
+  "spots": [
+    {
+      "name": "深圳湾公园",
+      "lng": 113.9385,
+      "lat": 22.5267,
+      "tags": ["日出", "海边", "城市天际线"],
+      "note": "海边栈道，清晨逆光极佳，可拍海平面日出与对岸城市轮廓",
+      "best_time": "清晨 / 傍晚",
+      "image": "https://picsum.photos/seed/shenzhenbay/600/400"
+    },
+    {
+      "name": "人才公园",
+      "lng": 113.9430,
+      "lat": 22.5200,
+      "tags": ["夜景", "城市天际线", "湖景"],
+      "note": "湖面倒映华润大厦，夜晚灯光亮起是拍城市夜景的绝佳机位",
+      "best_time": "夜晚",
+      "image": "https://picsum.photos/seed/talentpark/600/400"
+    },
+    {
+      "name": "莲花山公园",
+      "lng": 114.0590,
+      "lat": 22.5510,
+      "tags": ["俯瞰", "城市全景", "日落"],
+      "note": "山顶可俯瞰福田 CBD，傍晚能拍到日落与城市灯光交接",
+      "best_time": "傍晚",
+      "image": "https://picsum.photos/seed/lianhuashan/600/400"
+    },
+    {
+      "name": "东门老街",
+      "lng": 114.1160,
+      "lat": 22.5430,
+      "tags": ["街拍", "人文", "烟火气"],
+      "note": "老街区人流密集，适合拍人文街景与市井烟火气",
+      "best_time": "白天 / 傍晚",
+      "image": "https://picsum.photos/seed/dongmen/600/400"
+    },
+    {
+      "name": "海上世界",
+      "lng": 113.9140,
+      "lat": 22.4820,
+      "tags": ["夜景", "音乐喷泉", "异国风情"],
+      "note": "明华轮与音乐喷泉夜景，夜晚灯光氛围感强",
+      "best_time": "夜晚",
+      "image": "https://picsum.photos/seed/shekou/600/400"
+    },
+    {
+      "name": "欢乐海岸",
+      "lng": 113.9880,
+      "lat": 22.5270,
+      "tags": ["夜景", "湖景", "霓虹"],
+      "note": "湖岸霓虹倒影，适合拍夜景与灯光氛围",
+      "best_time": "夜晚",
+      "image": "https://picsum.photos/seed/octharbour/600/400"
+    },
+    {
+      "name": "梧桐山",
+      "lng": 114.2240,
+      "lat": 22.6000,
+      "tags": ["日出", "登山", "云海"],
+      "note": "深圳最高峰，清晨登顶可拍云海日出",
+      "best_time": "清晨",
+      "image": "https://picsum.photos/seed/wutongmountain/600/400"
+    },
+    {
+      "name": "甘坑客家小镇",
+      "lng": 114.1500,
+      "lat": 22.6200,
+      "tags": ["古风", "人文", "建筑"],
+      "note": "客家古建筑群，适合拍古风人文与建筑细节",
+      "best_time": "白天",
+      "image": "https://picsum.photos/seed/gankeng/600/400"
+    }
+  ]
+}

@@ -1,0 +1,1228 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>城市出片点地图 · Demo</title>
+
+  <!-- 开源地图库 MapLibre -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <!-- 开源 GIS 分析库 turf.js（缓冲区分析 + 反向遮罩） -->
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+
+  <style>
+    :root {
+      /* ===== 中性色（90%，白灰黑） ===== */
+      --bg:         #fafafa;   /* 页面底，近白 */
+      --surface:    #ffffff;   /* 面板/卡片 */
+      --surface-2:  #f5f5f5;   /* 次级背景（浅灰） */
+      --border:     #ececec;   /* 柔和边框 */
+      --text-strong:#1a1a1a;   /* 标题，近黑 */
+      --text:       #525252;   /* 正文 */
+      --text-muted: #8a8a8a;   /* 淡正文 */
+      --text-faint: #b5b5b5;   /* 最淡 */
+
+      /* ===== 单一强调色（10%，就一种蓝） ===== */
+      --accent:     #2563eb;
+      --accent-soft:#eef3fd;
+
+      --radius: 16px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md: 0 1px 3px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.06);
+    }
+
+    /* ===== 夜间模式变量覆盖（参考高德深色：深蓝灰 + 分明层次，不是纯黑） ===== */
+    body.dark {
+      --bg:         #16181f;
+      --surface:    #1e222b;
+      --surface-2:  #292f3a;
+      --border:     #353c49;
+      --text-strong:#eef1f6;
+      --text:       #c2c9d4;
+      --text-muted: #8f98a6;
+      --text-faint: #5d6674;
+      --accent:     #5b8cff;
+      --accent-soft:#24344f;
+    }
+    body.dark #panel {
+      background: rgba(30, 34, 43, 0.90);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    body.dark .legend {
+      background: rgba(30, 34, 43, 0.90);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    body.dark .map-ctrl-btn { color: var(--text); }
+    body.dark .me-marker { border-color: #1e222b; }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      font-family: -apple-system, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text-strong);
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    /* ===== 主题切换圆扩散动画 ===== */
+    .theme-ripple {
+      position: fixed;
+      border-radius: 50%;
+      background: var(--surface);
+      transform: scale(0);
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    header {
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand .logo {
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 700;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.22);
+    }
+    .brand .title { font-size: 17px; font-weight: 800; letter-spacing: 0.5px; }
+    .brand .subtitle { font-size: 12px; color: var(--text-faint); margin-top: 2px; font-weight: 400; }
+    .header-meta {
+      font-size: 12px; color: var(--text-muted);
+      background: var(--surface-2);
+      padding: 7px 16px;
+      border-radius: 999px;
+      display: flex; align-items: center; gap: 7px;
+      font-weight: 400;
+    }
+    .header-meta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+    /* ===== 顶部平级 Tab ===== */
+    .top-tabs {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--surface-2);
+      padding: 4px;
+      border-radius: 999px;
+    }
+    .top-tab {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 18px;
+      border: none; background: none;
+      border-radius: 999px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .top-tab:hover { color: var(--text-strong); }
+    .top-tab.active { background: var(--surface); color: var(--text-strong); font-weight: 700; box-shadow: var(--shadow-sm); }
+    .tab-count {
+      min-width: 18px; height: 18px; line-height: 18px;
+      border-radius: 9px;
+      background: var(--accent); color: #fff;
+      font-size: 10px; font-weight: 700;
+      text-align: center; padding: 0 5px;
+    }
+
+    #wrap { position: relative; height: calc(100% - 68px); }
+    #map { position: absolute; inset: 0; }
+
+    .legend {
+      position: absolute; right: 20px; bottom: 32px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: var(--shadow-md);
+      z-index: 5;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .legend .legend-title { font-weight: 700; color: var(--text-strong); margin-bottom: 10px; font-size: 12px; letter-spacing: 1px; }
+    .legend .row { display: flex; align-items: center; gap: 9px; margin: 6px 0; }
+    .legend .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend .swatch.spot { background: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,0.18); }
+    .legend .swatch.metro { background: var(--text-faint); }
+    .legend .swatch.buffer { background: rgba(37,99,235,0.14); border: 1.5px solid var(--accent); }
+    .legend .swatch.me { background: #1a1a1a; box-shadow: 0 0 0 2px rgba(26,26,26,0.12); }
+
+    /* ===== 悬浮面板（默认收起，点击下滑展开，半透明毛玻璃） ===== */
+    #panel {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 380px;
+      max-height: calc(100% - 24px);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      z-index: 6;
+      overflow: hidden;
+      transform: translateY(calc(-100% - 20px));
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #panel.open { transform: translateY(0); }
+    #panel .panel-head { padding: 22px 24px 16px; border-bottom: 1px solid var(--border); position: relative; }
+    #panel .panel-head h3 { font-size: 15px; font-weight: 700; color: var(--text-strong); letter-spacing: 0.3px; }
+    #panel .panel-head p { font-size: 12px; color: var(--text-faint); margin-top: 6px; line-height: 1.6; font-weight: 400; }
+    #panel .panel-body { overflow-y: auto; padding: 22px 24px; }
+
+    .search-box { position: relative; margin-top: 14px; }
+    .search-box .search-input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-strong);
+      outline: none;
+      transition: border 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+      background: var(--surface-2);
+    }
+    .search-box .search-input:focus {
+      border-color: var(--accent);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+    .search-box .search-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      color: var(--text-faint); font-size: 14px; pointer-events: none;
+    }
+    .search-results {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 20;
+      display: none;
+    }
+    .search-results.show { display: block; }
+    .search-results .sr-group { padding: 6px 8px 2px; font-size: 11px; color: var(--text-faint); letter-spacing: 1px; }
+    .search-results .sr-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; cursor: pointer; border-radius: 10px;
+      transition: background 0.12s;
+    }
+    .search-results .sr-item:hover { background: var(--accent-soft); }
+    .search-results .sr-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .search-results .sr-dot.spot { background: var(--accent); }
+    .search-results .sr-dot.metro { background: var(--text-faint); }
+    .search-results .sr-name { font-size: 13px; font-weight: 500; color: var(--text-strong); }
+    .search-results .sr-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .search-results .sr-empty { padding: 16px; text-align: center; font-size: 12px; color: var(--text-faint); }
+
+    .empty-state { text-align: center; padding: 48px 16px; color: var(--text-muted); }
+    .empty-state .icon {
+      width: 56px; height: 56px; margin: 0 auto 20px;
+      border-radius: 18px; background: var(--surface-2);
+      display: flex; align-items: center; justify-content: center; font-size: 26px;
+    }
+    .empty-state .title { font-size: 15px; font-weight: 700; color: var(--text-strong); margin-bottom: 10px; }
+    .empty-state .desc { font-size: 12px; line-height: 1.9; color: var(--text-faint); font-weight: 400; }
+    .empty-state .desc b { color: var(--accent); font-weight: 600; }
+
+    .card { display: none; animation: fadeIn 0.25s ease; }
+    .card.show { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .card .spot-name { font-size: 22px; font-weight: 800; line-height: 1.3; letter-spacing: 0.3px; }
+    .spot-img-wrap {
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      background: var(--surface-2);
+      aspect-ratio: 3 / 2;
+    }
+    .spot-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .spot-img:hover { transform: scale(1.04); }
+    .img-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--surface-2);
+    }
+    .card .tags { margin: 14px 0 16px; }
+    .card .tag {
+      display: inline-block;
+      background: var(--accent-soft); color: var(--accent);
+      padding: 4px 12px; border-radius: 999px;
+      font-size: 11px; margin: 0 6px 8px 0; font-weight: 500;
+    }
+    .card .note {
+      font-size: 13px; color: var(--text-muted); line-height: 1.8;
+      background: var(--surface-2); border-radius: 16px; padding: 16px 18px;
+      font-weight: 400;
+    }
+    .card .best-time {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-faint); margin-top: 10px; font-weight: 400;
+    }
+
+    .slider-block { margin: 24px 0; }
+    .slider-block .slider-label {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-weight: 400;
+    }
+    .slider-block .slider-label .val { font-size: 15px; font-weight: 700; color: var(--accent); }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px; border-radius: 2px;
+      background: var(--surface-2); outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--accent);
+      cursor: pointer; box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+      transition: transform 0.15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+    .metric {
+      background: var(--accent);
+      border-radius: var(--radius); padding: 20px 22px;
+      color: #fff; margin: 16px 0;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.20);
+    }
+    .metric .metric-num { font-size: 38px; font-weight: 800; line-height: 1; }
+    .metric .metric-label { font-size: 12px; opacity: 0.82; margin-top: 8px; letter-spacing: 1.5px; font-weight: 400; }
+
+    .metro-list { font-size: 13px; color: var(--text-muted); line-height: 1.9; }
+    .metro-list .m-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 10px 14px; border-radius: 12px; transition: background 0.15s;
+    }
+    .metro-list .m-item:hover { background: var(--surface-2); }
+    .metro-list .m-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); flex-shrink: 0; }
+    .metro-list .m-line {
+      font-size: 10px; color: var(--accent);
+      background: var(--accent-soft); padding: 2px 8px; border-radius: 5px;
+      margin-left: auto; flex-shrink: 0; font-weight: 500;
+    }
+
+    .maplibregl-popup-content {
+      border-radius: 16px; padding: 12px 16px;
+      box-shadow: var(--shadow-md); font-family: inherit;
+    }
+    .maplibregl-popup-content .p-name { font-weight: 600; font-size: 13px; }
+    .maplibregl-popup-content .p-line { font-size: 11px; color: var(--text-muted); }
+
+    /* 左侧控件组（定位 + 夜间模式） */
+    .map-controls-left {
+      position: absolute;
+      left: 20px; top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 5;
+    }
+    .map-ctrl-btn {
+      width: 42px; height: 42px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      color: var(--text);
+      z-index: 5;
+      transition: transform 0.15s, background 0.15s, color 0.15s;
+    }
+    .map-ctrl-btn:hover { transform: scale(1.05); background: var(--accent-soft); color: var(--accent); }
+    .map-ctrl-btn.loading { pointer-events: none; opacity: 0.6; }
+
+    /* "我在哪"标记 */
+    .me-marker {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.15);
+      position: relative;
+    }
+    .me-marker::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 40px; height: 40px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: rgba(26, 26, 26, 0.12);
+      animation: pulse 1.8s ease-out infinite;
+    }
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+    }
+
+    /* ===== Tab 导航栏 ===== */
+    .tab-bar {
+      display: flex;
+      padding: 0 16px;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .tab-btn {
+      padding: 14px 18px 12px;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-faint);
+      cursor: pointer;
+      position: relative;
+      font-family: inherit;
+      transition: color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text-muted); }
+    .tab-btn.active { color: var(--text-strong); font-weight: 700; }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 18px; right: 18px; bottom: -1px;
+      height: 2.5px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+    .tab-btn .badge {
+      display: inline-block;
+      min-width: 18px; height: 18px;
+      line-height: 18px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      padding: 0 5px;
+      margin-left: 6px;
+      vertical-align: 1px;
+    }
+
+    /* ===== 计划按钮（详情卡片里） ===== */
+    .plan-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px dashed var(--border);
+      background: var(--surface);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 18px 0 4px;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .plan-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .plan-btn.added { border-style: solid; background: var(--accent); color: #fff; }
+
+    /* ===== Tab 视图容器 ===== */
+    .tab-view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .tab-view[style*="display: none"] { display: none !important; }
+
+    /* ===== 我的计划视图 ===== */
+    .plan-view { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; padding: 22px 24px; }
+    .plan-view-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 16px; gap: 12px;
+    }
+    .plan-view-head h4 { font-size: 15px; font-weight: 700; color: var(--text-strong); }
+    .plan-view-sub { font-size: 12px; color: var(--text-faint); margin-top: 6px; line-height: 1.6; font-weight: 400; }
+    .plan-clear {
+      font-size: 12px; color: var(--text-faint); cursor: pointer; background: none; border: none; font-family: inherit;
+    }
+    .plan-clear:hover { color: var(--text-muted); }
+    .plan-nav-btn {
+      font-size: 12px; font-weight: 600; color: #fff;
+      background: var(--accent);
+      border: none; border-radius: 999px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .plan-nav-btn:hover { opacity: 0.88; }
+    .plan-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .plan-list { list-style: none; }
+    .plan-list .plan-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 12px;
+      font-size: 12px; color: var(--text);
+      transition: background 0.12s;
+    }
+    .plan-list .plan-item:hover { background: var(--surface-2); }
+    .plan-list .plan-item .plan-idx {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .plan-list .plan-item .plan-name { flex: 1; }
+    .plan-list .plan-item .plan-del {
+      color: var(--text-faint); cursor: pointer; font-size: 14px;
+      background: none; border: none; font-family: inherit; line-height: 1;
+    }
+    .plan-list .plan-item .plan-del:hover { color: #e11d48; }
+    .plan-empty { font-size: 13px; color: var(--text-faint); padding: 30px 4px; text-align: center; line-height: 1.8; }
+
+    /* ===== 计划网络开关 ===== */
+    .net-toggle {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-muted); cursor: pointer;
+      user-select: none;
+    }
+    .net-toggle input { cursor: pointer; }
+
+    @media (max-width: 720px) {
+      #wrap { flex-direction: column; }
+      #panel { width: 100%; max-height: 45%; border-left: none; border-top: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">◈</div>
+      <div>
+        <div class="title">城市出片点地图</div>
+        <div class="subtitle">GIS 缓冲区分析 · 地铁通达性统计</div>
+      </div>
+    </div>
+    <div class="top-tabs">
+      <button class="top-tab active" id="top-tab-explore" data-tab="explore">探索</button>
+      <button class="top-tab" id="top-tab-plan" data-tab="plan">我的计划<span class="tab-count" id="plan-count">0</span></button>
+    </div>
+    <div class="header-meta"><span class="dot"></span>深圳 · 示例数据</div>
+  </header>
+
+  <div id="wrap">
+    <div id="map">
+      <div class="legend">
+        <div class="legend-title">图 例</div>
+        <div class="row"><span class="swatch spot"></span>出片点</div>
+        <div class="row"><span class="swatch metro"></span>地铁口</div>
+        <div class="row"><span class="swatch buffer"></span>缓冲区（500m）</div>
+        <div class="row"><span class="swatch me"></span>我的位置</div>
+      </div>
+
+      <!-- 左侧控件组：定位 + 夜间模式 -->
+      <div class="map-controls-left">
+        <button class="map-ctrl-btn" id="locate-btn" title="定位到我的位置">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3.2"/>
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+            <circle cx="12" cy="12" r="8.5"/>
+          </svg>
+        </button>
+        <button class="map-ctrl-btn" id="theme-btn" title="切换夜间模式">
+          <svg id="theme-icon-moon" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+          </svg>
+          <svg id="theme-icon-sun" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="panel">
+      <!-- ===== Tab 1：探索 ===== -->
+      <div class="tab-view" id="tab-explore">
+        <div class="panel-head">
+          <h3>搜索地点</h3>
+          <p>输入出片点或地铁口名称，快速定位。</p>
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="search-input" placeholder="搜索地点，如：深圳湾 / 后海站" autocomplete="off" />
+            <div class="search-results" id="search-results"></div>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="empty-state" id="empty-tip">
+            <div class="icon">📍</div>
+            <div class="title">从选择一个出片点开始</div>
+            <div class="desc">
+              点击地图上的 <b>蓝色出片点</b>，或在上方搜索框里找地点，系统会自动画出缓冲区、统计附近地铁口数量。
+            </div>
+          </div>
+
+          <div class="card" id="card">
+            <div class="spot-img-wrap" id="c-img-wrap" style="display:none;">
+              <img id="c-img" class="spot-img" alt="" loading="lazy" />
+              <div class="img-fallback" id="c-img-fallback" style="display:none;">
+                <div>
+                  <div style="font-size:26px;margin-bottom:6px;">🖼️</div>
+                  <div>图片加载失败</div>
+                  <small style="color:#b5b5b5;">可在 spots.json 的 image 字段换成本地照片</small>
+                </div>
+              </div>
+            </div>
+            <div class="spot-name" id="c-name"></div>
+            <div class="tags" id="c-tags"></div>
+            <div class="note" id="c-note"></div>
+            <div class="best-time">🕐 <span id="c-time"></span></div>
+
+            <button class="plan-btn" id="plan-btn">＋ 加入我的计划</button>
+
+            <div class="slider-block">
+              <div class="slider-label">
+                <span>缓冲区半径</span>
+                <span class="val"><span id="radius-val">500</span> 米</span>
+              </div>
+              <input type="range" id="radius" min="200" max="2000" step="100" value="500" />
+            </div>
+
+            <div class="metric">
+              <div class="metric-num" id="c-count">0</div>
+              <div class="metric-label">缓冲区内地铁口数量</div>
+            </div>
+            <div class="metro-list" id="c-metro"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Tab 2：我的计划 ===== -->
+      <div class="tab-view" id="tab-plan" style="display:none;">
+        <div class="plan-view">
+          <div class="plan-view-head">
+            <div>
+              <h4>我的计划</h4>
+              <p class="plan-view-sub">已加入的出片点，勾选「计划网络」可在地图上连成路线。</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap;">
+              <label class="net-toggle">
+                <input type="checkbox" id="net-toggle" /> 计划网络
+              </label>
+              <button class="plan-nav-btn" id="amap-nav-btn" title="用高德地图规划路线">🧭 高德导航</button>
+              <button class="plan-clear" id="plan-clear">清空</button>
+            </div>
+          </div>
+          <ul class="plan-list" id="plan-list"></ul>
+          <div class="plan-empty" id="plan-empty">还没有计划点。去「探索」页点开出片点，加入你的拍摄计划吧。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script>
+    // ============ 1. 初始化地图（OpenFreeMap 矢量底图，免费无需 key） ============
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/liberty', // MiriaGo 同款开源底图，不挑环境
+      center: [114.05, 22.55], // 深圳福田/南山一带（标准 WGS-84 坐标）
+      zoom: 12 // 放大比例尺，聚焦深圳市区
+    });
+
+    // 左下角：缩放按钮 + 指南针（showCompass: true）
+    map.addControl(new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }), 'bottom-left');
+    // 左下角（缩放按钮上方）：比例尺
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
+
+    // ============ 2. 加载数据并标注 ============
+    let metroFC = null;
+    let spotsData = [];
+    let metroData = [];
+
+    async function loadData() {
+      const [spots, metro] = await Promise.all([
+        fetch('spots.json').then(r => r.json()),
+        fetch('metro.json').then(r => r.json())
+      ]);
+
+      // 直接用原始 WGS-84 坐标（OpenFreeMap/OSM 底图无需纠偏）
+      spotsData = spots.spots;
+      metroData = metro.stations;
+
+      const spotFeatures = spotsData.map(s => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
+        // tags 存成 JSON 字符串，避免 MapLibre 把数组序列化后类型歧义；showSpot 里会再解析回数组
+        properties: { name: s.name, tags: JSON.stringify(s.tags), note: s.note, bestTime: s.best_time, image: s.image }
+      }));
+
+      const metroFeatures = metroData.map(m => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [m.lng, m.lat] },
+        properties: { name: m.name, line: m.line }
+      }));
+      metroFC = turf.featureCollection(metroFeatures);
+
+      // 幂等：先移除可能存在的旧 source（夜间模式切换后重载时防报错）
+      ['spots', 'metro', 'buffer', 'net'].forEach(id => {
+        if (map.getSource(id)) map.removeSource(id);
+      });
+      map.addSource('spots', { type: 'geojson', data: turf.featureCollection(spotFeatures) });
+      map.addSource('metro', { type: 'geojson', data: metroFC });
+      map.addSource('buffer', { type: 'geojson', data: turf.featureCollection([]) });
+      map.addSource('net', { type: 'geojson', data: turf.featureCollection([]) });
+
+      map.addLayer({ id: 'buffer-fill', type: 'fill', source: 'buffer',
+        paint: { 'fill-color': '#2563eb', 'fill-opacity': 0.12 } });
+      map.addLayer({ id: 'buffer-line', type: 'line', source: 'buffer',
+        paint: { 'line-color': '#2563eb', 'line-width': 2 } });
+
+      // 计划网络线：点状虚线（谷歌地图风格）
+      map.addLayer({
+        id: 'net-line', type: 'line', source: 'net',
+        paint: {
+          'line-color': '#2563eb',
+          'line-width': 3.5,
+          'line-dasharray': [2, 7],
+          'line-opacity': 0.9
+        }
+      });
+
+      map.addLayer({
+        id: 'metro-layer', type: 'circle', source: 'metro',
+        paint: {
+          'circle-radius': 3.5,
+          'circle-color': '#9ca3af',
+          'circle-stroke-width': 1.2,
+          'circle-stroke-color': '#ffffff',
+          'circle-opacity': 0.7
+        }
+      });
+
+      map.addLayer({
+        id: 'spots-layer', type: 'circle', source: 'spots',
+        paint: {
+          'circle-radius': 10,
+          'circle-color': '#2563eb',
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#ffffff',
+          'circle-stroke-opacity': 1
+        }
+      });
+
+      // 事件绑定用命名函数 + 先 off 再 on，保证夜间模式切换后重载数据时不会重复绑定
+      map.off('mouseenter', 'spots-layer', onSpotEnter);
+      map.off('mouseleave', 'spots-layer', onSpotLeave);
+      map.off('click', 'spots-layer', onSpotClick);
+      map.off('click', 'metro-layer', onMetroClick);
+      map.on('mouseenter', 'spots-layer', onSpotEnter);
+      map.on('mouseleave', 'spots-layer', onSpotLeave);
+      map.on('click', 'spots-layer', onSpotClick);
+      map.on('click', 'metro-layer', onMetroClick);
+    }
+
+    function onSpotEnter() { map.getCanvas().style.cursor = 'pointer'; }
+    function onSpotLeave() { map.getCanvas().style.cursor = ''; }
+    function onSpotClick(e) {
+      const feat = e.features[0];
+      const [lng, lat] = feat.geometry.coordinates;
+      showSpot(feat.properties, lng, lat);
+    }
+    function onMetroClick(e) {
+      const p = e.features[0].properties;
+      new maplibregl.Popup()
+        .setLngLat(e.features[0].geometry.coordinates)
+        .setHTML(`<div class="p-name">${p.name}</div><div class="p-line">${p.line}</div>`)
+        .addTo(map);
+    }
+
+    // ============ 4. 核心逻辑：缓冲区 + 通达性统计 ============
+    let currentSpot = null;
+
+    function showSpot(props, lng, lat) {
+      currentSpot = { props, lng, lat };
+      document.getElementById('empty-tip').style.display = 'none';
+      document.getElementById('card').classList.add('show');
+      document.getElementById('c-name').textContent = props.name;
+      document.getElementById('c-note').textContent = props.note;
+      document.getElementById('c-time').textContent = '最佳时间：' + (props.bestTime || '全天');
+      // tags 可能是数组，也可能是被 MapLibre 序列化成的 JSON 字符串，统一转成数组再渲染
+      let tags = props.tags;
+      if (typeof tags === 'string') {
+        try { tags = JSON.parse(tags); } catch (e) { tags = [tags]; }
+      }
+      if (!Array.isArray(tags)) tags = [];
+      document.getElementById('c-tags').innerHTML = tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+      // 示例图：有 image 字段就展示，否则隐藏
+      const imgWrap = document.getElementById('c-img-wrap');
+      const img = document.getElementById('c-img');
+      const fallback = document.getElementById('c-img-fallback');
+      if (props.image) {
+        // 重置：显示 img，隐藏占位
+        img.style.display = 'block';
+        if (fallback) fallback.style.display = 'none';
+        img.onerror = () => {
+          // 加载失败 → 显示占位提示
+          img.style.display = 'none';
+          if (fallback) fallback.style.display = 'flex';
+        };
+        img.src = props.image;
+        img.alt = props.name;
+        imgWrap.style.display = 'block';
+      } else {
+        imgWrap.style.display = 'none';
+      }
+
+      map.flyTo({ center: [lng, lat], zoom: 13.5 });
+      updateBuffer();
+      updatePlanBtn();
+      // 点击出片点时，自动切回「探索」页看详情（如果当前在「我的计划」页）
+      switchTab('explore');
+    }
+
+    function updateBuffer() {
+      if (!currentSpot) return;
+      const { lng, lat } = currentSpot;
+      const radius = Number(document.getElementById('radius').value);
+
+      const buffered = turf.buffer(turf.point([lng, lat]), radius, { units: 'meters' });
+      map.getSource('buffer').setData(buffered);
+
+      const within = turf.pointsWithinPolygon(metroFC, buffered);
+      const count = within.features.length;
+      document.getElementById('c-count').textContent = count;
+
+      const listEl = document.getElementById('c-metro');
+      if (count === 0) {
+        listEl.innerHTML = '<div style="color:#b5b5b5;font-size:13px;line-height:1.7;">这个范围内暂时没有地铁口，通达性较弱。</div>';
+      } else {
+        listEl.innerHTML = within.features
+          .map(f => `<div class="m-item"><span class="m-dot"></span>${f.properties.name}<span class="m-line">${f.properties.line}</span></div>`)
+          .join('');
+      }
+    }
+
+    document.getElementById('radius').addEventListener('input', () => {
+      document.getElementById('radius-val').textContent = document.getElementById('radius').value;
+      updateBuffer();
+    });
+
+    // ============ 5. 搜索地点 ============
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+
+    function doSearch(q) {
+      q = q.trim().toLowerCase();
+      if (!q) { searchResults.classList.remove('show'); return; }
+
+      const results = [];
+      spotsData.forEach(s => {
+        if (s.name.toLowerCase().includes(q) || s.tags.some(t => t.toLowerCase().includes(q))) {
+          results.push({ type: 'spot', name: s.name, sub: s.tags.join(' · '), lng: s.lng, lat: s.lat, spot: s });
+        }
+      });
+      metroData.forEach(m => {
+        if (m.name.toLowerCase().includes(q) || m.line.toLowerCase().includes(q)) {
+          results.push({ type: 'metro', name: m.name, sub: m.line, lng: m.lng, lat: m.lat });
+        }
+      });
+
+      if (results.length === 0) {
+        searchResults.innerHTML = '<div class="sr-empty">没有找到相关地点</div>';
+      } else {
+        const spotItems = results.filter(r => r.type === 'spot');
+        const metroItems = results.filter(r => r.type === 'metro');
+        let html = '';
+        if (spotItems.length) {
+          html += '<div class="sr-group">出片点</div>';
+          html += spotItems.map(r => `<div class="sr-item" data-lng="${r.lng}" data-lat="${r.lat}" data-name="${r.name}" data-type="spot"><span class="sr-dot spot"></span><div><div class="sr-name">${r.name}</div><div class="sr-sub">${r.sub}</div></div></div>`).join('');
+        }
+        if (metroItems.length) {
+          html += '<div class="sr-group">地铁口</div>';
+          html += metroItems.map(r => `<div class="sr-item" data-lng="${r.lng}" data-lat="${r.lat}" data-name="${r.name}" data-type="metro"><span class="sr-dot metro"></span><div><div class="sr-name">${r.name}</div><div class="sr-sub">${r.sub}</div></div></div>`).join('');
+        }
+        searchResults.innerHTML = html;
+
+        searchResults.querySelectorAll('.sr-item').forEach(el => {
+          el.addEventListener('click', () => {
+            const lng = parseFloat(el.dataset.lng);
+            const lat = parseFloat(el.dataset.lat);
+            const type = el.dataset.type;
+            const name = el.dataset.name;
+            searchResults.classList.remove('show');
+            searchInput.value = name;
+
+            if (type === 'spot') {
+              const s = spotsData.find(x => x.name === name);
+              showSpot({ name: s.name, tags: s.tags, note: s.note, bestTime: s.best_time, image: s.image }, lng, lat);
+            } else {
+              const m = metroData.find(x => x.name === name);
+              map.flyTo({ center: [lng, lat], zoom: 14 });
+              new maplibregl.Popup()
+                .setLngLat([lng, lat])
+                .setHTML(`<div class="p-name">${m.name}</div><div class="p-line">${m.line}</div>`)
+                .addTo(map);
+            }
+          });
+        });
+      }
+      searchResults.classList.add('show');
+    }
+
+    searchInput.addEventListener('input', () => doSearch(searchInput.value));
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-box')) searchResults.classList.remove('show');
+    });
+
+    // ============ 6. 定位自己 ============
+    let meMarker = null;
+
+    function locateMe() {
+      const btn = document.getElementById('locate-btn');
+      if (!navigator.geolocation) {
+        alert('你的浏览器不支持定位功能');
+        return;
+      }
+      btn.classList.add('loading');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          btn.classList.remove('loading');
+          const { longitude, latitude } = pos.coords;
+          myLocation = { lng: longitude, lat: latitude };
+
+          // 移除旧标记
+          if (meMarker) meMarker.remove();
+
+          // 加一个新的"我在哪"标记
+          const el = document.createElement('div');
+          el.className = 'me-marker';
+          meMarker = new maplibregl.Marker({ element: el })
+            .setLngLat([longitude, latitude])
+            .addTo(map);
+
+          map.flyTo({ center: [longitude, latitude], zoom: 15 });
+          renderNetwork();
+        },
+        (err) => {
+          btn.classList.remove('loading');
+          let msg = '定位失败';
+          if (err.code === 1) msg = '定位被拒绝，请在浏览器里允许定位权限';
+          else if (err.code === 2) msg = '暂时拿不到位置，请稍后再试';
+          else if (err.code === 3) msg = '定位超时，请重试';
+          alert(msg);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+      );
+    }
+
+    document.getElementById('locate-btn').addEventListener('click', locateMe);
+
+    // ============ 夜间模式切换 ============
+    let isDark = false;
+    const LIGHT_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+    const DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
+
+    function setTheme(dark) {
+      isDark = dark;
+      document.body.classList.toggle('dark', dark);
+      // 切换图标：月亮(夜间) ↔ 太阳(白天)
+      document.getElementById('theme-icon-moon').style.display = dark ? 'none' : 'block';
+      document.getElementById('theme-icon-sun').style.display = dark ? 'block' : 'none';
+      // 切换底图样式，完成后重载数据图层
+      map.once('styledata', () => {
+        loadData();
+        renderNetwork();
+      });
+      map.setStyle(dark ? DARK_STYLE : LIGHT_STYLE);
+    }
+
+    // 点击主题按钮：从按钮位置扩散圆，扩散途中切换主题
+    document.getElementById('theme-btn').addEventListener('click', (e) => {
+      const btn = document.getElementById('theme-btn');
+      const rect = btn.getBoundingClientRect();
+      const ripple = document.createElement('div');
+      ripple.className = 'theme-ripple';
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = size + 'px';
+      ripple.style.height = size + 'px';
+      ripple.style.left = (rect.left + rect.width / 2 - size / 2) + 'px';
+      ripple.style.top = (rect.top + rect.height / 2 - size / 2) + 'px';
+      // 计算扩散倍数：覆盖到屏幕最远角
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const corners = [[0,0],[window.innerWidth,0],[0,window.innerHeight],[window.innerWidth,window.innerHeight]];
+      const maxDist = Math.max(...corners.map(([x,y]) => Math.hypot(x-cx, y-cy)));
+      const scale = (maxDist / (size / 2)) * 1.2;
+      ripple.style.setProperty('--ripple-scale', scale);
+      document.body.appendChild(ripple);
+
+      // 下一帧触发扩散
+      requestAnimationFrame(() => {
+        ripple.style.transform = `scale(${scale})`;
+      });
+
+      // 扩散到约一半时切换主题（0.3s，动画总长 0.6s）
+      setTimeout(() => {
+        setTheme(!isDark);
+      }, 300);
+
+      // 动画结束后移除扩散圆
+      setTimeout(() => {
+        ripple.remove();
+      }, 650);
+    });
+
+    // ============ 7. 我的计划 ============
+    let plan = [];               // [{name, lng, lat}]
+    let myLocation = null;       // {lng, lat}（定位后更新）
+    const PLAN_KEY = 'spotPlan';
+
+    function loadPlan() {
+      try { plan = JSON.parse(localStorage.getItem(PLAN_KEY)) || []; } catch (e) { plan = []; }
+    }
+    function savePlan() {
+      localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
+    }
+    function isPlanned(name) {
+      return plan.some(p => p.name === name);
+    }
+
+    // 渲染计划列表 + tab 计数徽标 + 空状态
+    function renderPlan() {
+      const listEl = document.getElementById('plan-list');
+      const emptyEl = document.getElementById('plan-empty');
+      const planCount = document.getElementById('plan-count');
+
+      // 更新顶部 tab 里的计数徽标
+      if (planCount) {
+        planCount.textContent = plan.length;
+        planCount.style.display = plan.length > 0 ? 'inline-block' : 'none';
+      }
+
+      // 空状态
+      if (plan.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = plan.map((p, i) => `
+        <li class="plan-item">
+          <span class="plan-idx">${i + 1}</span>
+          <span class="plan-name">${p.name}</span>
+          <button class="plan-del" data-name="${p.name}" title="移除">✕</button>
+        </li>
+      `).join('');
+
+      // 移除事件
+      listEl.querySelectorAll('.plan-del').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const name = btn.dataset.name;
+          plan = plan.filter(p => p.name !== name);
+          savePlan();
+          renderPlan();
+          updatePlanBtn();
+          renderNetwork();
+        });
+      });
+    }
+
+    // 更新"加入计划"按钮状态
+    function updatePlanBtn() {
+      const btn = document.getElementById('plan-btn');
+      if (!currentSpot) return;
+      const name = currentSpot.props.name;
+      if (isPlanned(name)) {
+        btn.textContent = '✓ 已在计划中（点击移除）';
+        btn.classList.add('added');
+      } else {
+        btn.textContent = '＋ 加入我的计划';
+        btn.classList.remove('added');
+      }
+    }
+
+    document.getElementById('plan-btn').addEventListener('click', () => {
+      if (!currentSpot) return;
+      const { props, lng, lat } = currentSpot;
+      if (isPlanned(props.name)) {
+        plan = plan.filter(p => p.name !== props.name);
+      } else {
+        plan.push({ name: props.name, lng, lat });
+      }
+      savePlan();
+      renderPlan();
+      updatePlanBtn();
+      renderNetwork();
+    });
+
+    document.getElementById('plan-clear').addEventListener('click', () => {
+      plan = [];
+      savePlan();
+      renderPlan();
+      updatePlanBtn();
+      renderNetwork();
+    });
+
+    // 高德导航：把计划点串成路线，跳转高德（起点=我的位置或第一个点，终点=最后一个，途经中间点）
+    document.getElementById('amap-nav-btn').addEventListener('click', () => {
+      if (plan.length < 2) {
+        alert('至少需要 2 个计划点才能规划路线');
+        return;
+      }
+      // 确定起点：优先我的位置，否则第一个计划点
+      const start = myLocation || plan[0];
+      const via = plan.slice(1, -1); // 中间途经点（去掉第一个和最后一个）
+      const end = plan[plan.length - 1];
+
+      // 高德 URI 导航：from / to / via（途经点用 ; 分隔）
+      let url = 'https://uri.amap.com/navigation?'
+        + `from=${start.lng},${start.lat},${encodeURIComponent(myLocation ? '我的位置' : start.name)}`
+        + `&to=${end.lng},${end.lat},${encodeURIComponent(end.name)}`
+        + '&mode=car';
+
+      if (via.length > 0) {
+        const viaStr = via.map(p => `${p.lng},${p.lat}`).join(';');
+        url += `&via=${encodeURIComponent(viaStr)}`;
+      }
+
+      window.open(url, '_blank');
+    });
+
+    // ============ Tab 切换（顶部平级 Tab + 悬浮面板） ============
+    let activeTab = 'explore';
+
+    function switchTab(tab) {
+      const exploreView = document.getElementById('tab-explore');
+      const planView = document.getElementById('tab-plan');
+      const exploreBtn = document.getElementById('top-tab-explore');
+      const planBtn = document.getElementById('top-tab-plan');
+      const panel = document.getElementById('panel');
+
+      activeTab = tab;
+      if (tab === 'plan') {
+        exploreView.style.display = 'none';
+        planView.style.display = 'flex';
+        exploreBtn.classList.remove('active');
+        planBtn.classList.add('active');
+      } else {
+        exploreView.style.display = 'flex';
+        planView.style.display = 'none';
+        exploreBtn.classList.add('active');
+        planBtn.classList.remove('active');
+      }
+      // 切 tab 时展开面板
+      panel.classList.add('open');
+    }
+
+    function closePanel() {
+      document.getElementById('panel').classList.remove('open');
+    }
+
+    // 点顶部 tab：如果当前就是这个 tab 且面板开着，就收起；否则切换并展开
+    document.getElementById('top-tab-explore').addEventListener('click', () => {
+      if (activeTab === 'explore' && document.getElementById('panel').classList.contains('open')) {
+        closePanel();
+      } else {
+        switchTab('explore');
+      }
+    });
+    document.getElementById('top-tab-plan').addEventListener('click', () => {
+      if (activeTab === 'plan' && document.getElementById('panel').classList.contains('open')) {
+        closePanel();
+      } else {
+        switchTab('plan');
+      }
+    });
+
+    // ============ 8. 计划网络（贪心最近邻连线） ============
+    // 两点直线距离（米，Haversine 近似）
+    function dist(a, b) {
+      const R = 6371000;
+      const dLat = (b.lat - a.lat) * Math.PI / 180;
+      const dLng = (b.lng - a.lng) * Math.PI / 180;
+      const lat1 = a.lat * Math.PI / 180, lat2 = b.lat * Math.PI / 180;
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(h));
+    }
+
+    // 贪心最近邻：从起点出发，每次连到最近的未访问点，串成一条路径
+    function buildNetworkPath(points) {
+      if (points.length === 0) return null;
+      const path = [];
+      const visited = new Set();
+      // 起点：优先"我的位置"，否则第一个计划点
+      let current = myLocation ? { ...myLocation, name: '__me__' } : points[0];
+      if (!myLocation) visited.add(points[0].name); // 起点是计划点时，标记已访问
+
+      const unvisited = () => points.filter(p => !visited.has(p.name));
+      while (unvisited().length > 0) {
+        const rest = unvisited();
+        let nearest = rest[0], minD = Infinity;
+        rest.forEach(p => {
+          const d = dist(current, p);
+          if (d < minD) { minD = d; nearest = p; }
+        });
+        path.push(nearest);
+        visited.add(nearest.name);
+        current = nearest;
+      }
+      return path;
+    }
+
+    function renderNetwork() {
+      const toggle = document.getElementById('net-toggle');
+      const src = map.getSource('net');
+      if (!src) return;
+      if (!toggle.checked || plan.length < 1) {
+        src.setData(turf.featureCollection([]));
+        return;
+      }
+      // 构建路径：从我的位置（或第一个计划点）出发，贪心连接
+      const ordered = buildNetworkPath(plan);
+      if (!ordered || ordered.length === 0) { src.setData(turf.featureCollection([])); return; }
+      const start = myLocation || plan[0];
+      const coords = [[start.lng, start.lat], ...ordered.map(p => [p.lng, p.lat])];
+      const line = turf.lineString(coords);
+      src.setData(turf.featureCollection([line]));
+    }
+
+    document.getElementById('net-toggle').addEventListener('change', renderNetwork);
+
+    // 定位后同步 myLocation，并重绘网络
+    // （在 locateMe 成功后调用）
+    const originalLocateSuccess = null; // 占位，下面直接改 locateMe
+
+    // 等底图样式加载完成后再加图层，避免时序报错
+    map.on('load', () => {
+      loadData();
+      loadPlan();
+      renderPlan();
+      updatePlanBtn();
+      renderNetwork();
+    });
+  </script>
+</body>
+</html>
