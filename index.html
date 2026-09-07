@@ -290,6 +290,19 @@
       display: inline-flex; align-items: center; gap: 6px;
       font-size: 12px; color: var(--text-faint); margin-top: 10px; font-weight: 400;
     }
+    /* 机位参考：数据溯源链接，视觉降级处理（小字号淡色，置于卡片底部） */
+    .card .refs {
+      margin-top: 18px; padding-top: 12px;
+      border-top: 1px dashed var(--border);
+      font-size: 11px; color: var(--text-faint); line-height: 1.9;
+    }
+    .card .refs .refs-title { font-weight: 500; margin-bottom: 2px; }
+    .card .refs a {
+      color: var(--text-muted); text-decoration: none;
+      display: inline-block; margin-right: 10px;
+      border-bottom: 1px dotted var(--text-faint);
+    }
+    .card .refs a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
     .slider-block { margin: 24px 0; }
     .slider-block .slider-label {
@@ -647,6 +660,7 @@
               <div class="metric-label">缓冲区内地铁站数量</div>
             </div>
             <div class="metro-list" id="c-metro"></div>
+            <div class="refs" id="c-refs" style="display:none;"></div>
           </div>
         </div>
       </div>
@@ -725,7 +739,7 @@
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
         // tags 存成 JSON 字符串，避免 MapLibre 把数组序列化后类型歧义；showSpot 里会再解析回数组
-        properties: { name: s.name, tags: JSON.stringify(s.tags), note: s.note, bestTime: s.best_time, image: s.image }
+        properties: { name: s.name, tags: JSON.stringify(s.tags), note: s.note, bestTime: s.best_time, image: s.image, refs: JSON.stringify(s.refs || []) }
       }));
 
       const metroFeatures = metroData.map(m => ({
@@ -825,6 +839,21 @@
       }
       if (!Array.isArray(tags)) tags = [];
       document.getElementById('c-tags').innerHTML = tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+      // 机位参考：数据溯源外链，只链接不搬运内容；无来源则隐藏
+      let refs = props.refs;
+      if (typeof refs === 'string') {
+        try { refs = JSON.parse(refs); } catch (e) { refs = []; }
+      }
+      if (!Array.isArray(refs)) refs = [];
+      const refsEl = document.getElementById('c-refs');
+      if (refs.length) {
+        refsEl.innerHTML = '<div class="refs-title">机位参考（来源外链）</div>' +
+          refs.map(r => `<a href="${r.url}" target="_blank" rel="noopener noreferrer">↗ ${r.label}</a>`).join('');
+        refsEl.style.display = 'block';
+      } else {
+        refsEl.style.display = 'none';
+      }
 
       // 示例图：有 image 字段就展示，否则隐藏
       const imgWrap = document.getElementById('c-img-wrap');
@@ -929,7 +958,7 @@
 
             if (type === 'spot') {
               const s = spotsData.find(x => x.name === name);
-              showSpot({ name: s.name, tags: s.tags, note: s.note, bestTime: s.best_time, image: s.image }, lng, lat);
+              showSpot({ name: s.name, tags: s.tags, note: s.note, bestTime: s.best_time, image: s.image, refs: s.refs }, lng, lat);
             } else {
               const m = metroData.find(x => x.name === name);
               map.flyTo({ center: [lng, lat], zoom: 14 });

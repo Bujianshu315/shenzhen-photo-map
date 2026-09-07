@@ -1,5 +1,5 @@
 {
-  "说明": "出片点数据。坐标用【经度 lng, 纬度 lat】。image 是示例图 URL，可替换成你自己的摄影作品。",
+  "说明": "出片点数据。坐标用【经度 lng, 纬度 lat】。image 是示例图 URL，可替换成你自己的摄影作品。refs 是机位信息来源（事实溯源，只链接不搬运内容）。",
   "spots": [
     {
       "name": "深圳湾公园",
@@ -8,16 +8,22 @@
       "tags": ["日出", "海边", "城市天际线"],
       "note": "海边栈道，清晨逆光极佳，可拍海平面日出与对岸城市轮廓",
       "best_time": "清晨 / 傍晚",
-      "image": "https://picsum.photos/seed/shenzhenbay/600/400"
+      "image": "https://picsum.photos/seed/shenzhenbay/600/400",
+      "refs": [
+        { "label": "读特新闻：深圳拍照地标盘点", "url": "https://m.dutenews.com/n/ctmedia/450172" }
+      ]
     },
     {
       "name": "人才公园",
       "lng": 113.9430,
       "lat": 22.5200,
       "tags": ["夜景", "城市天际线", "湖景"],
-      "note": "湖面倒映华润大厦，夜晚灯光亮起是拍城市夜景的绝佳机位",
+      "note": "湖面倒映华润大厦，夜晚灯光亮起是拍城市夜景的绝佳机位；周五/六及节假日有灯光秀，星光桥与 π 桥是核心观赏位（13号线人才公园站B1口）",
       "best_time": "夜晚",
-      "image": "https://picsum.photos/seed/talentpark/600/400"
+      "image": "https://picsum.photos/seed/talentpark/600/400",
+      "refs": [
+        { "label": "创新南山：南山灯光秀攻略", "url": "https://www.toutiao.com/article/7681300832427508230/" }
+      ]
     },
     {
       "name": "莲花山公园",
@@ -32,19 +38,25 @@
       "name": "东门老街",
       "lng": 114.1160,
       "lat": 22.5430,
-      "tags": ["街拍", "人文", "烟火气"],
-      "note": "老街区人流密集，适合拍人文街景与市井烟火气",
+      "tags": ["街拍", "人文", "烟火气", "日落"],
+      "note": "老街区人流密集，适合拍人文街景与市井烟火气；也是「落日飞车」与罗湖楼群的经典取景地（1/3号线老街站）",
       "best_time": "白天 / 傍晚",
-      "image": "https://picsum.photos/seed/dongmen/600/400"
+      "image": "https://picsum.photos/seed/dongmen/600/400",
+      "refs": [
+        { "label": "读特新闻：深圳拍照地标盘点", "url": "https://m.dutenews.com/n/ctmedia/450172" }
+      ]
     },
     {
       "name": "海上世界",
       "lng": 113.9140,
       "lat": 22.4820,
       "tags": ["夜景", "音乐喷泉", "异国风情"],
-      "note": "明华轮与音乐喷泉夜景，夜晚灯光氛围感强",
+      "note": "明华轮与音乐喷泉夜景，夜晚灯光氛围感强；音乐水秀周二至周日每晚多场（2/8/12号线海上世界站A口）",
       "best_time": "夜晚",
-      "image": "https://picsum.photos/seed/shekou/600/400"
+      "image": "https://picsum.photos/seed/shekou/600/400",
+      "refs": [
+        { "label": "创新南山：南山灯光秀攻略", "url": "https://www.toutiao.com/article/7681300832427508230/" }
+      ]
     },
     {
       "name": "欢乐海岸",
@@ -72,6 +84,395 @@
       "note": "客家古建筑群，适合拍古风人文与建筑细节",
       "best_time": "白天",
       "image": "https://picsum.photos/seed/gankeng/600/400"
+    },
+    {
+      "name": "岗厦北站 5 号出口",
+      "lng": 114.0655,
+      "lat": 22.5380,
+      "tags": ["夜景", "赛博朋克", "灯光秀"],
+      "note": "「深圳曼哈顿」网红机位，出站直面福田 CBD 楼群；周五/周六晚市民中心灯光秀时段最佳（2/10/11/14号线岗厦北站5口）",
+      "best_time": "周五/周六 19:00-21:00",
+      "image": "https://picsum.photos/seed/gangxia5/600/400",
+      "refs": [
+        { "label": "小红书搜索「岗厦北 曼哈顿机位」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E5%B2%97%E5%8E%A6%E5%8C%97%20%E6%9B%BC%E5%93%88%E9%A1%BF%E6%9C%BA%E4%BD%8D" }
+      ]
+    },
+    {
+      "name": "卓悦中心（福华一路）",
+      "lng": 114.0575,
+      "lat": 22.5360,
+      "tags": ["夜景", "赛博朋克", "街拍"],
+      "note": "小说「A 市」具象化，路口拍纵深感，蓝紫霓虹；《惊蛰无声》追捕镜头取景地（岗厦北站步行5分钟）",
+      "best_time": "19:30-21:00",
+      "image": "https://picsum.photos/seed/oneavenue/600/400",
+      "refs": [
+        { "label": "腾讯新闻：易烊千玺同款取景地", "url": "https://new.qq.com/rain/a/20260219A02P7U00" }
+      ]
+    },
+    {
+      "name": "卓悦中心北区停车场出口",
+      "lng": 114.0585,
+      "lat": 22.5378,
+      "tags": ["夜景", "小众机位"],
+      "note": "隐藏赛博朋克机位，仰拍楼群压迫感强（岗厦北站5号出口附近）",
+      "best_time": "夜晚",
+      "image": "https://picsum.photos/seed/oneavenueN/600/400",
+      "refs": [
+        { "label": "顶端新闻：深圳超绝打卡机位", "url": "https://www.dingxinwen.cn/news/1458D5E145BC4570" }
+      ]
+    },
+    {
+      "name": "「深圳四件套」十字路口",
+      "lng": 114.0500,
+      "lat": 22.5340,
+      "tags": ["夜景", "仰拍", "地标"],
+      "note": "信息枢纽大厦旁十字路口仰拍，摩天楼+月亮经典构图（月亮需后期合成）；1/3号线购物公园站D口",
+      "best_time": "夜晚",
+      "image": "https://picsum.photos/seed/sizijian/600/400",
+      "refs": [
+        { "label": "腾讯新闻：深圳大片机位攻略", "url": "https://news.qq.com/rain/a/20241006A02YYA00" },
+        { "label": "顶端新闻：深圳超绝打卡机位", "url": "https://www.dingxinwen.cn/news/1458D5E145BC4570" }
+      ]
+    },
+    {
+      "name": "岗厦站 B 出口扶梯",
+      "lng": 114.0712,
+      "lat": 22.5348,
+      "tags": ["夜景", "地铁机位"],
+      "note": "「深圳最美地铁出口」，B口左转经商场上B1层，扶梯上抓拍城市夜景（1/10号线岗厦站）",
+      "best_time": "夜晚",
+      "image": "https://picsum.photos/seed/gangxiaB/600/400",
+      "refs": [
+        { "label": "顶端新闻：深圳超绝打卡机位", "url": "https://www.dingxinwen.cn/news/1458D5E145BC4570" }
+      ]
+    },
+    {
+      "name": "大疆「天空之城」· 石鼓花园机位",
+      "lng": 113.9445,
+      "lat": 22.5830,
+      "tags": ["建筑", "赛博朋克", "对比构图"],
+      "note": "石鼓花园东门直行50米，老居民楼与科技大楼形成「时空裂缝」；19:00-20:00大楼亮灯时段最佳（5号线留仙洞站A口）",
+      "best_time": "19:00-20:00",
+      "image": "https://picsum.photos/seed/djisky/600/400",
+      "refs": [
+        { "label": "南山文体通：深圳最美夜景机位", "url": "https://m.toutiao.com/article/7524409364371882532" }
+      ]
+    },
+    {
+      "name": "金地威新科技园 ·「盗梦空间」机位",
+      "lng": 113.9460,
+      "lat": 22.5200,
+      "tags": ["夜景", "建筑", "框架构图"],
+      "note": "金色「魔方」框住春笋；建议三脚架、15-35mm，大楼灯牌亮可用包围曝光（2号线科苑站C口/9号线高新南站）",
+      "best_time": "日落-蓝调",
+      "image": "https://picsum.photos/seed/gemdale/600/400",
+      "refs": [
+        { "label": "南山文体通：深圳最美夜景机位", "url": "https://m.toutiao.com/article/7524409364371882532" }
+      ]
+    },
+    {
+      "name": "万象天地 5 楼连廊",
+      "lng": 113.9495,
+      "lat": 22.5405,
+      "tags": ["夜景", "都市", "人像"],
+      "note": "百老汇电影中心旁小门直走到拐角，商场连廊上的「曼哈顿」CBD 视角，适合 CCD/胶片风（1号线高新园站A口）",
+      "best_time": "傍晚亮灯后",
+      "image": "https://picsum.photos/seed/mixc5f/600/400",
+      "refs": [
+        { "label": "南山文体通：深圳最美夜景机位", "url": "https://m.toutiao.com/article/7524409364371882532" }
+      ]
+    },
+    {
+      "name": "南山公园（83 号路灯 / 齐天亭）",
+      "lng": 113.9180,
+      "lat": 22.4940,
+      "tags": ["夜景", "俯瞰", "登山"],
+      "note": "「爱乐之城」同款夜景，俯瞰深圳湾大桥、蛇口港、沿江高速 S 弯；长焦 70-200mm，21:30 路灯熄后更纯净（2/8号线海上世界站H口）",
+      "best_time": "日落+蓝调",
+      "image": "https://picsum.photos/seed/nanshanpark/600/400",
+      "refs": [
+        { "label": "南山文体通：深圳最美夜景机位", "url": "https://m.toutiao.com/article/7524409364371882532" }
+      ]
+    },
+    {
+      "name": "金地威新中心 A 座 36F 空中大堂",
+      "lng": 113.9465,
+      "lat": 22.5205,
+      "tags": ["高空", "落地窗", "日落"],
+      "note": "免费开放的「天空之镜」，免刷卡电梯上楼，整面落地窗正对深圳湾，春笋春茧尽收眼底（2号线科苑站C口）",
+      "best_time": "17:00-19:00",
+      "image": "https://picsum.photos/seed/gemdale36/600/400",
+      "refs": [
+        { "label": "南山文体通：深圳最美夜景机位", "url": "https://m.toutiao.com/article/7524409364371882532" },
+        { "label": "南方+：藏在南山的影视机位", "url": "https://www.nfnews.com/content/DorbEbgLoM.html" }
+      ]
+    },
+    {
+      "name": "文华大厦西座 30 层",
+      "lng": 114.1355,
+      "lat": 22.5470,
+      "tags": ["高空", "地标同框", "日落"],
+      "note": "「深圳曼哈顿」经典高位：地王大厦、京基100、平安三地标同框，日落金光照楼（2号线黄贝岭站H/G2口）",
+      "best_time": "日落 / 夜晚",
+      "image": "https://picsum.photos/seed/wenhua30/600/400",
+      "refs": [
+        { "label": "腾讯新闻：深圳大片机位攻略", "url": "https://news.qq.com/rain/a/20241006A02YYA00" }
+      ]
+    },
+    {
+      "name": "塘朗山公园 · 梅林后山",
+      "lng": 114.0320,
+      "lat": 22.5740,
+      "tags": ["登山", "俯瞰", "天际线"],
+      "note": "与「深圳之巅」平安金融中心同框，俯瞰市中心天际线（9号线下梅林站D口步行至梅林后山）",
+      "best_time": "夕阳时分",
+      "image": "https://picsum.photos/seed/meilinhill/600/400",
+      "refs": [
+        { "label": "腾讯新闻：深圳大片机位攻略", "url": "https://news.qq.com/rain/a/20241006A02YYA00" },
+        { "label": "顶端新闻：深圳超绝打卡机位", "url": "https://www.dingxinwen.cn/news/1458D5E145BC4570" }
+      ]
+    },
+    {
+      "name": "深湾汇云中心观景台",
+      "lng": 113.9680,
+      "lat": 22.5140,
+      "tags": ["高空", "360°", "海湾"],
+      "note": "358.7 米深圳最高云端观景台，360° 俯瞰深圳湾，远眺香港（11号线红树湾南站A口步行300米）",
+      "best_time": "晴天白天 / 傍晚",
+      "image": "https://picsum.photos/seed/shenwanhui/600/400",
+      "refs": [
+        { "label": "小红书搜索「深湾汇云中心 观景台」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E6%B7%B1%E6%B9%BE%E6%B1%87%E4%BA%91%E4%B8%AD%E5%BF%83%20%E8%A7%82%E6%99%AF%E5%8F%B0" }
+      ]
+    },
+    {
+      "name": "铁仔山公园",
+      "lng": 113.8510,
+      "lat": 22.5880,
+      "tags": ["登山", "日落", "跨海大桥"],
+      "note": "山顶远眺深中通道，日落晚霞映照跨海大桥（12号线宝安客运站C口）",
+      "best_time": "日落",
+      "image": "https://picsum.photos/seed/tiezai/600/400",
+      "refs": [
+        { "label": "小红书搜索「铁仔山 深中通道 日落」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E9%93%81%E4%BB%94%E5%B1%B1%20%E6%B7%B1%E4%B8%AD%E9%80%9A%E9%81%93%20%E6%97%A5%E8%90%BD" }
+      ]
+    },
+    {
+      "name": "深圳湾公园站 D2 出口扶梯",
+      "lng": 113.9460,
+      "lat": 22.5090,
+      "tags": ["海边", "日落", "地铁机位"],
+      "note": "「最出片地铁口」，出站迎面大海+跨海大桥，日落逆光剪影（9号线深圳湾公园站D2口）",
+      "best_time": "16:00-日落",
+      "image": "https://picsum.photos/seed/szwparkD2/600/400",
+      "refs": [
+        { "label": "小红书搜索「深圳湾公园站 D2 机位」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E6%B7%B1%E5%9C%B3%E6%B9%BE%E5%85%AC%E5%9B%AD%E7%AB%99%20D2%20%E6%9C%BA%E4%BD%8D" }
+      ]
+    },
+    {
+      "name": "西湾栈道 · 沿江高速桥下",
+      "lng": 113.8230,
+      "lat": 22.5780,
+      "tags": ["日落", "海边", "桥梁"],
+      "note": "「日落橘子海」，夕阳透过桥墩在海面映出光路（公交/驾车至金湾大道）",
+      "best_time": "16:30-19:00",
+      "image": "https://picsum.photos/seed/xiwan/600/400",
+      "refs": [
+        { "label": "小红书搜索「西湾 日落 橘子海」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E8%A5%BF%E6%B9%BE%20%E6%97%A5%E8%90%BD%20%E6%A9%98%E5%AD%90%E6%B5%B7" }
+      ]
+    },
+    {
+      "name": "盐田港",
+      "lng": 114.2830,
+      "lat": 22.5790,
+      "tags": ["港口", "日出", "色彩"],
+      "note": "七彩集装箱与大海，清晨可遇云海日出（8号线盐田路方向，到站后需打车至观景位）",
+      "best_time": "清晨日出",
+      "image": "https://picsum.photos/seed/yantian/600/400",
+      "refs": [
+        { "label": "读特新闻：深圳拍照地标盘点", "url": "https://m.dutenews.com/n/ctmedia/450172" }
+      ]
+    },
+    {
+      "name": "东涌穿鼻岩",
+      "lng": 114.5680,
+      "lat": 22.4870,
+      "tags": ["海蚀洞", "小众", "自然风光"],
+      "note": "天然海蚀洞，深圳版「圣象天门」，人少景美（大鹏新区东涌海滩，节假日自驾需预约通行）",
+      "best_time": "白天",
+      "image": "https://picsum.photos/seed/chuanbi/600/400",
+      "refs": [
+        { "label": "小红书搜索「东涌 穿鼻岩」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E4%B8%9C%E6%B6%8C%20%E7%A9%BF%E9%BC%BB%E5%B2%A9" }
+      ]
+    },
+    {
+      "name": "深圳天文台",
+      "lng": 114.5525,
+      "lat": 22.4800,
+      "tags": ["星空", "银河", "徒步"],
+      "note": "远离光污染，可拍银河萤火虫；白天徒步观海栈道（大鹏新区西涌，建议自驾）",
+      "best_time": "晴朗夜晚 / 白天",
+      "image": "https://picsum.photos/seed/observatory/600/400",
+      "refs": [
+        { "label": "读特新闻：深圳拍照地标盘点", "url": "https://m.dutenews.com/n/ctmedia/450172" }
+      ]
+    },
+    {
+      "name": "太子湾 K11 顶层空中花园",
+      "lng": 113.8975,
+      "lat": 22.4680,
+      "tags": ["海边", "建筑", "蓝白"],
+      "note": "「小三亚」纯白长廊+蓝天碧海，白天清新夜晚氛围感（12号线太子湾站C口）",
+      "best_time": "10:00-16:00 / 19:00-21:00",
+      "image": "https://picsum.photos/seed/k11roof/600/400",
+      "refs": [
+        { "label": "小红书搜索「太子湾 K11 空中花园」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E5%A4%AA%E5%AD%90%E6%B9%BE%20K11%20%E7%A9%BA%E4%B8%AD%E8%8A%B1%E5%9B%AD" }
+      ]
+    },
+    {
+      "name": "K11 ECOAST 海滨艺术区",
+      "lng": 113.8985,
+      "lat": 22.4665,
+      "tags": ["海边", "艺术区", "步道"],
+      "note": "270° 海景，1.3 公里滨海步道，室内岩壁风设计（12号线太子湾站）",
+      "best_time": "白天 / 傍晚",
+      "image": "https://picsum.photos/seed/k11ecoast/600/400",
+      "refs": [
+        { "label": "小红书搜索「K11 ECOAST 机位」", "url": "https://www.xiaohongshu.com/search_result?keyword=K11%20ECOAST%20%E6%9C%BA%E4%BD%8D" }
+      ]
+    },
+    {
+      "name": "后海站 E 出口水池",
+      "lng": 113.9380,
+      "lat": 22.5175,
+      "tags": ["倒影", "创意机位"],
+      "note": "「水中倒影」网红机位，出站往海德一路走，马路水池边拍楼群倒影（2/8/11号线后海站E口）",
+      "best_time": "无风晴天",
+      "image": "https://picsum.photos/seed/houhaiE/600/400",
+      "refs": [
+        { "label": "顶端新闻：深圳超绝打卡机位", "url": "https://www.dingxinwen.cn/news/1458D5E145BC4570" }
+      ]
+    },
+    {
+      "name": "岗厦北站「深圳之眼」",
+      "lng": 114.0658,
+      "lat": 22.5383,
+      "tags": ["建筑", "穹顶", "光影"],
+      "note": "亚洲最大单体地铁站无柱穹顶，费马螺旋线，阳光透过天井倾泻；张艺谋《惊蛰无声》取景（岗厦北站站内）",
+      "best_time": "白天有阳光时",
+      "image": "https://picsum.photos/seed/szeye/600/400",
+      "refs": [
+        { "label": "读特新闻：深圳顶流机位", "url": "https://www.dutenews.com/n/ctmedia/750326" },
+        { "label": "腾讯新闻：易烊千玺同款取景地", "url": "https://new.qq.com/rain/a/20260219A02P7U00" }
+      ]
+    },
+    {
+      "name": "钟书阁（欢乐港湾）",
+      "lng": 113.8860,
+      "lat": 22.5460,
+      "tags": ["室内", "书店", "设计感"],
+      "note": "巨型螺旋书架，时空错乱感（5号线临海站B2口）",
+      "best_time": "白天",
+      "image": "https://picsum.photos/seed/zhongshuge/600/400",
+      "refs": [
+        { "label": "读特新闻：深圳拍照地标盘点", "url": "https://m.dutenews.com/n/ctmedia/450172" }
+      ]
+    },
+    {
+      "name": "光明文化艺术中心「光明之眼」",
+      "lng": 113.9370,
+      "lat": 22.7490,
+      "tags": ["建筑", "倒影", "旋梯"],
+      "note": "弧形线条+湖水倒影构成「眼睛」；馆内黑白旋梯同样出片（6号线光明大街站，出站后打车约10分钟）",
+      "best_time": "白天",
+      "image": "https://picsum.photos/seed/gmeye/600/400",
+      "refs": [
+        { "label": "读特新闻：深圳拍照地标盘点", "url": "https://m.dutenews.com/n/ctmedia/450172" },
+        { "label": "读特新闻：深圳顶流机位", "url": "https://www.dutenews.com/n/ctmedia/750326" }
+      ]
+    },
+    {
+      "name": "深业上城",
+      "lng": 114.0630,
+      "lat": 22.5680,
+      "tags": ["色彩", "建筑", "连廊"],
+      "note": "多巴胺色系 Loft 小镇+700 米空中连廊，连接莲花山与笔架山，可俯瞰天际线（10号线冬瓜岭站A口）",
+      "best_time": "白天 / 夜晚",
+      "image": "https://picsum.photos/seed/upperhills/600/400",
+      "refs": [
+        { "label": "腾讯新闻：易烊千玺同款取景地", "url": "https://new.qq.com/rain/a/20260219A02P7U00" }
+      ]
+    },
+    {
+      "name": "玛丝菲尔艺术大楼",
+      "lng": 113.9780,
+      "lat": 22.6580,
+      "tags": ["建筑", "小众", "魔幻"],
+      "note": "「外星基地」仿生建筑，机位在新锐美术馆一侧（6号线阳台山东站C1口换公交）",
+      "best_time": "白天",
+      "image": "https://picsum.photos/seed/marisfrolg/600/400",
+      "refs": [
+        { "label": "小红书搜索「玛丝菲尔大厦 机位」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E7%8E%9B%E4%B8%9D%E8%8F%B2%E5%B0%94%E5%A4%A7%E5%8E%A6%20%E6%9C%BA%E4%BD%8D" }
+      ]
+    },
+    {
+      "name": "中洲湾 C Future City",
+      "lng": 114.0210,
+      "lat": 22.5260,
+      "tags": ["室内", "未来感", "装置"],
+      "note": "最具未来感商场，水粒子装置、花瀑（9号线下沙站B口）",
+      "best_time": "白天",
+      "image": "https://picsum.photos/seed/cfuture/600/400",
+      "refs": [
+        { "label": "小红书搜索「中洲湾 拍照」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E4%B8%AD%E6%B4%B2%E6%B9%BE%20%E6%8B%8D%E7%85%A7" }
+      ]
+    },
+    {
+      "name": "皇岗文化广场",
+      "lng": 114.0660,
+      "lat": 22.5240,
+      "tags": ["古风", "汉服", "对比"],
+      "note": "深圳独一份古今同框：庙宇飞檐朱墙 vs 背后摩天楼，汉服旗袍出片圣地（7号线皇岗村站，出站步行约10分钟）",
+      "best_time": "16:00-18:00",
+      "image": "https://picsum.photos/seed/huanggang/600/400",
+      "refs": [
+        { "label": "小红书搜索「皇岗 古今同框」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E7%9A%87%E5%B2%97%20%E5%8F%A4%E4%BB%8A%E5%90%8C%E6%A1%86" }
+      ]
+    },
+    {
+      "name": "华侨城生态广场 · 凤凰花连廊",
+      "lng": 113.9840,
+      "lat": 22.5400,
+      "tags": ["花海", "俯拍", "季节限定"],
+      "note": "公认最佳俯拍机位：二楼连廊正对凤凰花海，远处高楼同框（春夏季花期限定，1号线华侨城站B口）",
+      "best_time": "15:00-17:00（花期）",
+      "image": "https://picsum.photos/seed/octflower/600/400",
+      "refs": [
+        { "label": "小红书搜索「华侨城 凤凰花」", "url": "https://www.xiaohongshu.com/search_result?keyword=%E5%8D%8E%E4%BE%A8%E5%9F%8E%20%E5%87%A4%E5%87%B0%E8%8A%B1" }
+      ]
+    },
+    {
+      "name": "「湾区之光」摩天轮（合和大厦路口）",
+      "lng": 113.8810,
+      "lat": 22.5430,
+      "tags": ["摩天轮", "日落", "浪漫"],
+      "note": "十字路口抓拍摩天轮，「夏威夷度假风」，日落染金（5号线临海站B2口）",
+      "best_time": "17:30-19:00",
+      "image": "https://picsum.photos/seed/baywheel/600/400",
+      "refs": [
+        { "label": "读特新闻：深圳拍照地标盘点", "url": "https://m.dutenews.com/n/ctmedia/450172" }
+      ]
+    },
+    {
+      "name": "红山 6979",
+      "lng": 114.0180,
+      "lat": 22.6190,
+      "tags": ["商圈", "影视", "潮流"],
+      "note": "《惊蛰无声》取景地，D1口广场+南区2楼有电影主题装置与同款机位标注（4/6号线红山站）",
+      "best_time": "傍晚",
+      "image": "https://picsum.photos/seed/hongshan6979/600/400",
+      "refs": [
+        { "label": "腾讯新闻：易烊千玺同款取景地", "url": "https://new.qq.com/rain/a/20260219A02P7U00" }
+      ]
     }
   ]
 }
