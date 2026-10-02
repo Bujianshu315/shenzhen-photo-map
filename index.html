@@ -57,6 +57,13 @@
     body.dark .map-ctrl-btn { color: var(--text); }
     body.dark .me-marker { border-color: #1e222b; }
 
+    /* 深色模式下的地图弹窗（悬停 tooltip / 地铁站弹窗） */
+    body.dark .maplibregl-popup-content { background: var(--surface-2); color: var(--text-strong); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    body.dark .maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: var(--surface-2); }
+    body.dark .maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: var(--surface-2); }
+    body.dark .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: var(--surface-2); }
+    body.dark .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: var(--surface-2); }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
@@ -158,7 +165,25 @@
       font-size: 12px;
       color: var(--text-muted);
     }
-    .legend .legend-title { font-weight: 700; color: var(--text-strong); margin-bottom: 10px; font-size: 12px; letter-spacing: 1px; }
+    /* 首次访问引导提示 */
+    .hint-toast {
+      position: absolute; left: 50%; bottom: 88px;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--text-strong); color: var(--bg);
+      font-size: 12.5px; padding: 10px 18px; border-radius: 999px;
+      box-shadow: var(--shadow-md); z-index: 7;
+      opacity: 0; pointer-events: none; white-space: nowrap; cursor: pointer;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .hint-toast.show { opacity: 0.96; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+
+    .legend .legend-title { font-weight: 700; color: var(--text-strong); font-size: 12px; letter-spacing: 1px; }
+    .legend .legend-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; user-select: none; }
+    .legend .legend-chevron { transition: transform 0.25s ease; color: var(--text-faint); flex-shrink: 0; }
+    .legend:not(.collapsed) .legend-chevron { transform: rotate(180deg); }
+    .legend.collapsed { padding: 10px 16px; }
+    .legend.collapsed .legend-body { display: none; }
+    .legend:not(.collapsed) .legend-body { margin-top: 10px; }
     .legend .row { display: flex; align-items: center; gap: 9px; margin: 6px 0; }
     .legend .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .legend .swatch.spot { background: var(--accent); box-shadow: 0 0 0 2px rgba(37,99,235,0.18); }
@@ -176,7 +201,7 @@
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 20px;
+      border-radius: 16px; /* 圆角收敛：卡片统一 16，控件统一 12 */
       box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
       display: flex;
       flex-direction: column;
@@ -295,7 +320,8 @@
     }
     .card .best-time {
       display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--text-faint); margin-top: 10px; font-weight: 400;
+      font-size: 12px; color: var(--accent); margin-top: 10px; font-weight: 500;
+      background: var(--accent-soft); padding: 5px 12px; border-radius: 999px;
     }
     /* 机位参考：数据溯源链接，视觉降级处理（小字号淡色，置于卡片底部） */
     .card .refs {
@@ -573,25 +599,33 @@
       <div class="logo">◈</div>
       <div>
         <div class="title">深圳出片地图</div>
-        <div class="subtitle">GIS 缓冲区分析 · 地铁通达性统计</div>
+        <div class="subtitle">找到深圳最好拍的机位</div>
       </div>
     </div>
     <div class="top-tabs">
       <button class="top-tab active" id="top-tab-explore" data-tab="explore">探索</button>
       <button class="top-tab" id="top-tab-plan" data-tab="plan">我的计划<span class="tab-count" id="plan-count">0</span></button>
     </div>
-    <div class="header-meta"><span class="dot"></span>深圳 · 持续收录中</div>
+    <div class="header-meta"><span class="dot"></span><span id="spot-total">深圳 · 持续收录中</span></div>
   </header>
 
   <div id="wrap">
     <div id="map">
-      <div class="legend">
-        <div class="legend-title">图 例</div>
-        <div class="row"><span class="swatch spot"></span>出片点</div>
-        <div class="row"><span class="swatch metro"></span>地铁站</div>
-        <div class="row"><span class="swatch buffer"></span>缓冲区（<span id="legend-radius">500</span>m）</div>
-        <div class="row"><span class="swatch me"></span>我的位置</div>
+      <div class="legend collapsed" id="legend">
+        <div class="legend-head" id="legend-head" title="展开 / 收起图例">
+          <span class="legend-title">图 例</span>
+          <svg class="legend-chevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="legend-body">
+          <div class="row"><span class="swatch spot"></span>出片点</div>
+          <div class="row"><span class="swatch metro"></span>地铁站</div>
+          <div class="row"><span class="swatch buffer"></span>缓冲区（<span id="legend-radius">500</span>m）</div>
+          <div class="row"><span class="swatch me"></span>我的位置</div>
+        </div>
       </div>
+
+      <!-- 首次访问引导提示（点击或 8 秒后消失，localStorage 记住已读） -->
+      <div class="hint-toast" id="hint-toast">💡 点击蓝色机位点，查看机位详情与最佳拍摄时间</div>
 
       <!-- 左侧控件组：定位 + 夜间模式 -->
       <div class="map-controls-left">
@@ -744,6 +778,9 @@
       spotsData = spots.spots;
       metroData = metro.stations;
 
+      // 顶栏实时机位数量（具体数字 + 持续收录，比形容词有说服力）
+      document.getElementById('spot-total').textContent = `${spotsData.length} 个机位 · 持续收录中`;
+
       const spotFeatures = spotsData.map(s => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
@@ -758,7 +795,11 @@
       }));
       metroFC = turf.featureCollection(metroFeatures);
 
-      // 幂等：先移除可能存在的旧 source（夜间模式切换后重载时防报错）
+      // 幂等：先移除可能存在的旧图层和 source（夜间模式切换后重载时防报错；
+      // 必须先 removeLayer 再 removeSource，否则报 "Source cannot be removed while layer is using it"）
+      ['spots-layer', 'metro-layer', 'buffer-fill', 'buffer-line', 'net-line'].forEach(id => {
+        if (map.getLayer(id)) map.removeLayer(id);
+      });
       ['spots', 'metro', 'buffer', 'net'].forEach(id => {
         if (map.getSource(id)) map.removeSource(id);
       });
@@ -816,8 +857,23 @@
       map.on('click', 'metro-layer', onMetroClick);
     }
 
-    function onSpotEnter() { map.getCanvas().style.cursor = 'pointer'; }
-    function onSpotLeave() { map.getCanvas().style.cursor = ''; }
+    // 悬停出片点：轻量 tooltip 预览机位名称（探索时不必逐个点开）
+    const spotHoverTip = new maplibregl.Popup({
+      closeButton: false, closeOnClick: false, offset: 18,
+      className: 'spot-hover-tip', maxWidth: '240px'
+    });
+    function onSpotEnter(e) {
+      map.getCanvas().style.cursor = 'pointer';
+      const f = e.features && e.features[0];
+      if (!f) return;
+      spotHoverTip.setLngLat(f.geometry.coordinates)
+        .setHTML(`<div class="p-name">${f.properties.name}</div>`)
+        .addTo(map);
+    }
+    function onSpotLeave() {
+      map.getCanvas().style.cursor = '';
+      spotHoverTip.remove();
+    }
     function onSpotClick(e) {
       const feat = e.features[0];
       const [lng, lat] = feat.geometry.coordinates;
@@ -1073,6 +1129,7 @@
         finished = true;
         applyDarkTweaks();
         await loadData();
+        applyMetroTone();
         updateBuffer();
         renderNetwork();
       };
@@ -1333,9 +1390,45 @@
 
     document.getElementById('net-toggle').addEventListener('change', renderNetwork);
 
+    // 图例折叠 / 展开（默认收起，把右下角还给地图）
+    document.getElementById('legend-head').addEventListener('click', () => {
+      document.getElementById('legend').classList.toggle('collapsed');
+    });
+
+    // 地铁站视觉权重按主题调节：暗色下降低存在感，避免白点喧宾夺主
+    function applyMetroTone() {
+      if (!map.getLayer('metro-layer')) return;
+      if (isDark) {
+        map.setPaintProperty('metro-layer', 'circle-color', '#7c8698');
+        map.setPaintProperty('metro-layer', 'circle-opacity', 0.35);
+        map.setPaintProperty('metro-layer', 'circle-radius', 2.5);
+      } else {
+        map.setPaintProperty('metro-layer', 'circle-color', '#9ca3af');
+        map.setPaintProperty('metro-layer', 'circle-opacity', 0.7);
+        map.setPaintProperty('metro-layer', 'circle-radius', 3.5);
+      }
+    }
+
+    // 首次访问引导：轻提示，点击或 8 秒后消失，localStorage 记住已读
+    (function initHint() {
+      const KEY = 'spotHintSeen';
+      const el = document.getElementById('hint-toast');
+      let seen = false;
+      try { seen = !!localStorage.getItem(KEY); } catch (e) {}
+      if (seen) return;
+      setTimeout(() => el.classList.add('show'), 1200);
+      const dismiss = () => {
+        el.classList.remove('show');
+        try { localStorage.setItem(KEY, '1'); } catch (e) {}
+      };
+      el.addEventListener('click', dismiss);
+      setTimeout(dismiss, 8000);
+    })();
+
     // 等底图样式加载完成后再加图层，避免时序报错
-    map.on('load', () => {
-      loadData();
+    map.on('load', async () => {
+      await loadData();
+      applyMetroTone();
       loadPlan();
       renderPlan();
       updatePlanBtn();
