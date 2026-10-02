@@ -70,7 +70,7 @@ npx serve .
 
 - **地铁站数据**（`metro.json`）：来自 [OpenStreetMap](https://www.openstreetmap.org/)（通过 Overpass API 查询，含线路号），© OpenStreetMap contributors，遵循 [ODbL 协议](https://opendatacommons.org/licenses/odbl/)。
 - **地图底图**：来自 [OpenFreeMap](https://openfreemap.org/)（基于 OpenStreetMap 数据），使用时应保留相应署名。
-- **出片点数据**（`spots.json`）：作者自维护；图片为作者实拍作品与本地生成的主题占位图（占位图标注「实拍后替换」），正逐步替换为实地拍摄作品。
+- **出片点数据**（`spots.json`）：作者自维护；机位详情图来自 [Wikimedia Commons](https://commons.wikimedia.org/)（每张图已在详情页标注作者与许可证，为场景示意、非机位实拍），正逐步替换为作者实地拍摄作品（首张：人才公园）。
 - 导航能力由高德地图 URI API 提供，路线计算不在本项目内进行。
 
 ## 技术栈（全部免费）
