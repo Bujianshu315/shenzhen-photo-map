@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%232563eb'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E%E2%97%88%3C/text%3E%3C/svg%3E" />
   <meta name="description" content="深圳出片地图：面向摄影爱好者的深圳拍照机位地图，提供 GIS 缓冲区分析与地铁通达性统计。" />
   <title>深圳出片地图</title>
 
@@ -63,7 +64,12 @@
       background: var(--bg);
       color: var(--text-strong);
       -webkit-font-smoothing: antialiased;
-      transition: background 0.4s ease, color 0.4s ease;
+      transition: background 0.8s ease, color 0.8s ease;
+    }
+
+    /* 主题切换时大表面颜色平滑渐变（面板/图例/顶栏），参考 Alma 官网的丝滑过渡 */
+    header, .legend, .header-meta, .top-tab {
+      transition: background-color 0.8s ease, color 0.8s ease, border-color 0.8s ease;
     }
 
     /* ===== 主题切换圆扩散动画 ===== */
@@ -74,7 +80,7 @@
       transform: scale(0);
       pointer-events: none;
       z-index: 9999;
-      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 1.1s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     header {
@@ -177,7 +183,8 @@
       z-index: 6;
       overflow: hidden;
       transform: translateY(calc(-100% - 20px));
-      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                  background-color 0.8s ease, border-color 0.8s ease;
     }
     #panel.open { transform: translateY(0); }
     #panel .panel-head { padding: 22px 24px 16px; border-bottom: 1px solid var(--border); position: relative; }
@@ -700,18 +707,20 @@
       container: 'map',
       style: 'https://tiles.openfreemap.org/styles/liberty', // MiriaGo 同款开源底图，不挑环境
       center: [114.05, 22.55], // 深圳福田/南山一带（标准 WGS-84 坐标）
-      zoom: 12 // 放大比例尺，聚焦深圳市区
+      zoom: 12, // 放大比例尺，聚焦深圳市区
+      attributionControl: false // 禁用默认版权控件，下方手动加一个（否则会出现两套署名）
     });
 
     // 左下角：缩放按钮 + 指南针（showCompass: true）
     map.addControl(new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }), 'bottom-left');
     // 左下角（缩放按钮上方）：比例尺
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
-    // 右下角：数据来源署名（地铁数据来自 OSM，ODbL 协议要求署名）
+    // 左下角：数据来源署名（唯一的版权控件；compact 模式收起为小气泡，展开不与右侧图例重叠）
+    // 注：底图自带的 OpenFreeMap/OpenMapTiles 署名会由控件自动拼接，customAttribution 只需补 OSM 数据署名
     map.addControl(new maplibregl.AttributionControl({
       compact: true,
-      customAttribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | © <a href="https://openfreemap.org" target="_blank">OpenFreeMap</a>'
-    }), 'bottom-right');
+      customAttribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+    }), 'bottom-left');
 
     // ============ 2. 加载数据并标注 ============
     let metroFC = null;
@@ -1026,19 +1035,50 @@
     const LIGHT_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
     const DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 
+    // 深色底图二次调色：参考高德深色模式——深邃蓝黑（非纯黑）、水系偏青蓝、绿地暗墨绿
+    const DARK_TWEAKS = {
+      land:  '#0d1526', // 陆地背景：深藏蓝
+      water: '#1a3355', // 水系：青蓝（比陆地亮一档，形成层次）
+      green: '#132219'  // 公园绿地：暗墨绿
+    };
+    function applyDarkTweaks() {
+      if (!isDark) return;
+      const style = map.getStyle();
+      if (!style || !style.layers) return;
+      style.layers.forEach(l => {
+        const sl = l['source-layer'];
+        try {
+          if (l.type === 'background') {
+            map.setPaintProperty(l.id, 'background-color', DARK_TWEAKS.land);
+          } else if (sl === 'water' && l.type === 'fill') {
+            map.setPaintProperty(l.id, 'fill-color', DARK_TWEAKS.water);
+          } else if ((sl === 'landcover' || sl === 'landuse' || sl === 'park') && l.type === 'fill') {
+            map.setPaintProperty(l.id, 'fill-color', DARK_TWEAKS.green);
+          }
+        } catch (e) { /* 个别图层属性不可写时跳过，不影响整体 */ }
+      });
+    }
+
     function setTheme(dark) {
       isDark = dark;
       document.body.classList.toggle('dark', dark);
       // 切换图标：月亮(夜间) ↔ 太阳(白天)
       document.getElementById('theme-icon-moon').style.display = dark ? 'none' : 'block';
       document.getElementById('theme-icon-sun').style.display = dark ? 'block' : 'none';
-      // 切换底图样式，完成后重载数据图层（await 确保 source 就绪后再重绘缓冲区）
-      map.once('styledata', async () => {
+      // 等「新样式」渲染空闲后再操作：idle 在样式+瓦片全部就绪时触发一次；
+      // 另加 4 秒兜底（弱网时 idle 可能延迟），flag 防止重复执行
+      let finished = false;
+      const finishStyleSwap = async () => {
+        if (finished) return;
+        finished = true;
+        applyDarkTweaks();
         await loadData();
         updateBuffer();
         renderNetwork();
-      });
+      };
       map.setStyle(dark ? DARK_STYLE : LIGHT_STYLE);
+      map.once('idle', finishStyleSwap);
+      setTimeout(finishStyleSwap, 4000);
     }
 
     // 点击主题按钮：从按钮位置扩散圆，扩散途中切换主题
@@ -1066,15 +1106,15 @@
         ripple.style.transform = `scale(${scale})`;
       });
 
-      // 扩散到约一半时切换主题（0.3s，动画总长 0.6s）
+      // 扩散到约一半时切换主题（动画总长 1.1s，与 ripple transition 同步）
       setTimeout(() => {
         setTheme(!isDark);
-      }, 300);
+      }, 550);
 
       // 动画结束后移除扩散圆
       setTimeout(() => {
         ripple.remove();
-      }, 650);
+      }, 1200);
     });
 
     // ============ 7. 我的计划 ============
