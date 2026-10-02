@@ -409,6 +409,28 @@
     }
     .map-ctrl-btn:hover { transform: scale(1.05); background: var(--accent-soft); color: var(--accent); }
     .map-ctrl-btn.loading { pointer-events: none; opacity: 0.6; }
+    .map-ctrl-btn.loading svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 指南针强化：北针染红（参考高德红针），方向感一眼可见 */
+    .maplibregl-ctrl .maplibregl-ctrl-compass .maplibregl-ctrl-icon,
+    .maplibregl-ctrl-compass .maplibregl-ctrl-icon {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5 L16.5 12 L12 21.5 L7.5 12 Z' fill='%23b8bec8'/%3E%3Cpath d='M12 2.5 L16.5 12 L7.5 12 Z' fill='%23e11d48'/%3E%3C/svg%3E") !important;
+      background-size: 78% !important;
+    }
+
+    /* 轻提示 toast（定位反馈等，替代 alert，任何环境都可见） */
+    .msg-toast {
+      position: absolute; left: 50%; bottom: 140px;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--text-strong); color: var(--bg);
+      font-size: 12.5px; padding: 10px 18px; border-radius: 999px;
+      box-shadow: var(--shadow-md); z-index: 8;
+      opacity: 0; pointer-events: none; white-space: nowrap;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .msg-toast.show { opacity: 0.96; transform: translateX(-50%) translateY(0); }
+    .msg-toast.error { background: #be123c; color: #fff; }
 
     /* "我在哪"标记 */
     .me-marker {
@@ -539,7 +561,8 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .plan-list .plan-item .plan-name { flex: 1; }
+    .plan-list .plan-item .plan-name { flex: 1; cursor: pointer; transition: color 0.15s; }
+    .plan-list .plan-item .plan-name:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
     .plan-list .plan-item .plan-del {
       color: var(--text-faint); cursor: pointer; font-size: 14px;
       background: none; border: none; font-family: inherit; line-height: 1;
@@ -626,6 +649,9 @@
 
       <!-- 首次访问引导提示（点击或 8 秒后消失，localStorage 记住已读） -->
       <div class="hint-toast" id="hint-toast">💡 点击蓝色机位点，查看机位详情与最佳拍摄时间</div>
+
+      <!-- 操作反馈 toast（定位成功/失败等） -->
+      <div class="msg-toast" id="msg-toast"></div>
 
       <!-- 左侧控件组：定位 + 夜间模式 -->
       <div class="map-controls-left">
@@ -1046,10 +1072,21 @@
     // ============ 6. 定位自己 ============
     let meMarker = null;
 
+    // 轻提示 toast：替代 alert（alert 在 iframe 预览里可能被拦截，造成"点了没反应"的假象）
+    let toastTimer = null;
+    function showToast(msg, isError = false, ms = 3200) {
+      const el = document.getElementById('msg-toast');
+      el.textContent = msg;
+      el.classList.toggle('error', isError);
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+    }
+
     function locateMe() {
       const btn = document.getElementById('locate-btn');
       if (!navigator.geolocation) {
-        alert('你的浏览器不支持定位功能');
+        showToast('你的浏览器不支持定位功能', true);
         return;
       }
       btn.classList.add('loading');
@@ -1071,14 +1108,15 @@
 
           map.flyTo({ center: [longitude, latitude], zoom: 15 });
           renderNetwork();
+          showToast('已定位到你的位置');
         },
         (err) => {
           btn.classList.remove('loading');
           let msg = '定位失败';
-          if (err.code === 1) msg = '定位被拒绝，请在浏览器里允许定位权限';
+          if (err.code === 1) msg = '定位被拒绝：请点击地址栏左侧图标允许定位权限';
           else if (err.code === 2) msg = '暂时拿不到位置，请稍后再试';
           else if (err.code === 3) msg = '定位超时，请重试';
-          alert(msg);
+          showToast(msg, true, 4500);
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
       );
@@ -1189,6 +1227,14 @@
       return plan.some(p => p.name === name);
     }
 
+    // 从计划列表跳转到点位详情：切回探索 tab，复用 showSpot（内含 flyTo + 缓冲区重绘）
+    function jumpToSpot(name) {
+      const s = spotsData.find(x => x.name === name);
+      if (!s) { showToast('点位数据还在加载中，稍后再试', true); return; }
+      switchTab('explore');
+      showSpot({ name: s.name, tags: s.tags, note: s.note, bestTime: s.best_time, image: s.image, refs: s.refs }, s.lng, s.lat);
+    }
+
     // 渲染计划列表 + tab 计数徽标 + 空状态
     function renderPlan() {
       const listEl = document.getElementById('plan-list');
@@ -1211,10 +1257,15 @@
       listEl.innerHTML = plan.map((p, i) => `
         <li class="plan-item">
           <span class="plan-idx">${i + 1}</span>
-          <span class="plan-name">${p.name}</span>
+          <span class="plan-name" data-name="${p.name}" title="点击查看机位详情">${p.name}</span>
           <button class="plan-del" data-name="${p.name}" title="移除">✕</button>
         </li>
       `).join('');
+
+      // 点击点位名：切回探索 tab + 飞到点位 + 打开详情卡
+      listEl.querySelectorAll('.plan-name').forEach(el => {
+        el.addEventListener('click', () => jumpToSpot(el.dataset.name));
+      });
 
       // 移除事件
       listEl.querySelectorAll('.plan-del').forEach(btn => {
