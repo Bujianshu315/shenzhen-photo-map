@@ -505,14 +505,23 @@
     .plan-view { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; padding: 22px 24px; }
     .plan-view-head {
       display: flex; align-items: flex-start; justify-content: space-between;
-      margin-bottom: 16px; gap: 12px;
+      margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
     }
+    .plan-view-head > div:first-child { flex: 1 1 160px; min-width: 0; }
     .plan-view-head h4 { font-size: 15px; font-weight: 700; color: var(--text-strong); }
     .plan-view-sub { font-size: 12px; color: var(--text-faint); margin-top: 6px; line-height: 1.6; font-weight: 400; }
     .plan-clear {
       font-size: 12px; color: var(--text-faint); cursor: pointer; background: none; border: none; font-family: inherit;
     }
     .plan-clear:hover { color: var(--text-muted); }
+    /* 计划导入 / 导出按钮 */
+    .plan-io-btn {
+      font-size: 12px; color: var(--text-muted); cursor: pointer;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 999px; padding: 6px 12px; font-family: inherit;
+      transition: color 0.15s, background 0.15s;
+    }
+    .plan-io-btn:hover { color: var(--accent); background: var(--accent-soft); }
     .plan-nav-btn {
       font-size: 12px; font-weight: 600; color: #fff;
       background: var(--accent);
@@ -713,6 +722,9 @@
                 <input type="checkbox" id="net-toggle" /> 计划网络
               </label>
               <button class="plan-nav-btn" id="amap-nav-btn" title="用高德地图规划路线">🧭 高德导航</button>
+              <button class="plan-io-btn" id="plan-export-btn" title="把当前计划导出为 JSON 文件，可分享给朋友导入">导出</button>
+              <button class="plan-io-btn" id="plan-import-btn" title="从 JSON 文件导入计划">导入</button>
+              <input type="file" id="plan-file-input" accept=".json,application/json" style="display:none" />
               <button class="plan-clear" id="plan-clear">清空</button>
             </div>
           </div>
@@ -1279,6 +1291,70 @@
       renderPlan();
       updatePlanBtn();
       renderNetwork();
+    });
+
+    // ===== 计划导出 / 导入（JSON 文件分享，借鉴 MiriaGo 的 .sjhplan 数据包思路） =====
+    document.getElementById('plan-export-btn').addEventListener('click', () => {
+      if (!plan.length) { showToast('计划是空的，先去「探索」加几个出片点吧', true); return; }
+      // 导出时从点位库补齐完整信息，接收方即使不用本工具也能看懂这份清单
+      const items = plan.map(p => {
+        const s = spotsData.find(x => x.name === p.name);
+        return s
+          ? { name: s.name, lng: s.lng, lat: s.lat, tags: s.tags, note: s.note, best_time: s.best_time }
+          : { name: p.name, lng: p.lng, lat: p.lat };
+      });
+      const payload = {
+        app: 'shenzhen-photo-map',
+        type: 'shooting-plan',
+        version: 1,
+        exported_at: new Date().toISOString().slice(0, 10),
+        spots: items
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `深圳出片计划-${payload.exported_at}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      showToast(`已导出 ${items.length} 个机位，可分享给朋友导入`);
+    });
+
+    const planFileInput = document.getElementById('plan-file-input');
+    document.getElementById('plan-import-btn').addEventListener('click', () => planFileInput.click());
+    planFileInput.addEventListener('change', () => {
+      const file = planFileInput.files[0];
+      planFileInput.value = '';
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const arr = Array.isArray(data) ? data : data.spots;
+          if (!Array.isArray(arr)) throw new Error('bad format');
+          let added = 0, skipped = 0;
+          arr.forEach(item => {
+            if (!item || !item.name || isPlanned(item.name)) { skipped++; return; }
+            const s = spotsData.find(x => x.name === item.name);
+            if (s) {
+              plan.push({ name: s.name, lng: s.lng, lat: s.lat }); // 以本地点位库坐标为准
+              added++;
+            } else if (typeof item.lng === 'number' && typeof item.lat === 'number') {
+              plan.push({ name: item.name, lng: item.lng, lat: item.lat }); // 兼容外部来源的坐标
+              added++;
+            } else {
+              skipped++;
+            }
+          });
+          savePlan(); renderPlan(); updatePlanBtn(); renderNetwork();
+          if (added) showToast(`已导入 ${added} 个机位${skipped ? `，跳过 ${skipped} 个（重名或无法识别）` : ''}`);
+          else showToast('没有可导入的机位（可能已全部存在或文件格式不符）', true);
+        } catch (e) {
+          showToast('导入失败：不是有效的计划 JSON 文件', true);
+        }
+      };
+      reader.readAsText(file);
     });
 
     // 高德导航：把计划点串成路线，跳转高德（起点=我的位置或第一个点，终点=最后一个，途经中间点）

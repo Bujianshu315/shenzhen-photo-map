@@ -21,6 +21,7 @@
 - 搜索：按名称 / 标签 / 线路号搜索出片点和地铁站
 - 用户定位：LBS 获取当前位置并标注，作为路线规划起点
 - 我的计划：收藏 / 移除 / 清空出片点，localStorage 本地持久化
+- 计划分享：一键导出 JSON 计划文件发给朋友，对方导入即可复刻同款拍摄路线（借鉴 MiriaGo 数据包思路）
 - 计划网络：贪心最近邻算法把计划点串成路线，点状虚线展示
 - 路线规划：URI 深链跳转高德地图导航（起点 / 途经点 / 终点）
 - 主题切换：深色 / 浅色双主题（深色参考高德配色），圆扩散过渡动画
@@ -73,7 +74,7 @@ npx serve .
 
 - **地铁站数据**（`metro.json`）：来自 [OpenStreetMap](https://www.openstreetmap.org/)（通过 Overpass API 查询，含线路号），© OpenStreetMap contributors，遵循 [ODbL 协议](https://opendatacommons.org/licenses/odbl/)。
 - **地图底图**：来自 [OpenFreeMap](https://openfreemap.org/)（基于 OpenStreetMap 数据），使用时应保留相应署名。
-- **出片点数据**（`spots.json`）：作者自维护；机位详情图来自 [Wikimedia Commons](https://commons.wikimedia.org/)（每张图已在详情页标注作者与许可证，为场景示意、非机位实拍），正逐步替换为作者实地拍摄作品（首张：人才公园）。
+- **出片点数据**（`spots.json`）：作者自维护；机位详情图通过 [Wikimedia Commons](https://commons.wikimedia.org/) 官方缩略图 URL 引用（每张图已在详情页标注作者与许可证，为场景示意、非机位实拍），正逐步替换为作者实地拍摄作品（首张：人才公园，存于本地 `assets/photos/`）。仓库不打包第三方图片，保持轻量化，符合「只链接、不搬运」原则。
 - 导航能力由高德地图 URI API 提供，路线计算不在本项目内进行。
 
 ## 技术栈（全部免费）
@@ -88,7 +89,7 @@ npx serve .
 - [x] 点位扩充：已扩充至 40 个深圳实地机位（配图暂为 Wikimedia Commons 场景示意图，正逐步替换为实地拍摄作品）
 - [ ] AI 一句话筛选：输入"离地铁近、适合日落的点"，大模型翻译成筛选条件自动标点
 - [ ] AI 点评生成：根据点位特征自动生成推荐文案
-- [ ] 计划分享：导出 / 导入拍摄计划
+- [x] 计划分享：导出 / 导入拍摄计划（JSON 文件）
 
 ## 开源协议
 
