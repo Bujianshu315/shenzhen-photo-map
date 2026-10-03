@@ -1,0 +1,17 @@
+{
+  "name": "shenzhen-photo-map",
+  "version": "0.1.0",
+  "private": true,
+  "description": "深圳出片地图：面向摄影爱好者的机位与通达性地图",
+  "scripts": {
+    "start": "node tool/static-server.js",
+    "start:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./server.ps1",
+    "check": "node tool/check-project.js",
+    "test:syntax": "node --check tool/test-plan-io.js && node --check tool/osm-spot-lookup.js",
+    "test:plan": "node tool/test-plan-io.js",
+    "test": "npm run check && npm run test:syntax"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}

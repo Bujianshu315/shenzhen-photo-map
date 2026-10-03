@@ -124,6 +124,20 @@
 
     #wrap { position: relative; height: 100%; }
     #map { position: absolute; inset: 0; }
+    .map-status {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      display: flex; align-items: center; gap: 9px; padding: 10px 14px;
+      border: 1px solid var(--border); border-radius: 999px;
+      background: rgba(255,255,255,.92); color: var(--text-muted);
+      box-shadow: var(--shadow-md); z-index: 10; font-size: 12px;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .map-status[hidden] { display: none; }
+    .map-status.error { color: #b42318; border-color: #f3b4ae; }
+    .map-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: map-status-pulse 1.2s ease-in-out infinite; }
+    .map-status.error .map-status-dot { background: #d92d20; animation: none; }
+    .map-status button { border: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; font-weight: 700; }
+    @keyframes map-status-pulse { 50% { opacity: .35; transform: scale(.75); } }
 
     .legend {
       position: absolute; left: 0; bottom: 120px;
@@ -514,12 +528,14 @@
     /* ===== 我的计划视图 ===== */
     .plan-view { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; padding: 22px 24px; }
     .plan-view-head {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+      display: flex; flex-direction: column; align-items: stretch;
+      margin-bottom: 16px; gap: 12px; min-width: 0;
     }
-    .plan-view-head > div:first-child { flex: 1 1 160px; min-width: 0; }
+    .plan-view-title { min-width: 0; }
     .plan-view-head h4 { font-size: 15px; font-weight: 700; color: var(--text-strong); }
     .plan-view-sub { font-size: 12px; color: var(--text-faint); margin-top: 6px; line-height: 1.6; font-weight: 400; }
+    .plan-view-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+    .plan-view-actions > * { flex: 0 0 auto; }
     .plan-clear {
       font-size: 12px; color: var(--text-faint); cursor: pointer; background: none; border: none; font-family: inherit;
     }
@@ -543,6 +559,12 @@
     }
     .plan-nav-btn:hover { opacity: 0.88; }
     .plan-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .nav-provider {
+      max-width: 142px; min-width: 118px; padding: 6px 26px 6px 10px;
+      border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2);
+      color: var(--text); font: inherit; font-size: 12px; outline: none;
+    }
+    .nav-provider:focus { border-color: var(--accent); }
     .plan-list { list-style: none; }
     .plan-list .plan-item {
       display: flex; align-items: center; gap: 8px;
@@ -610,12 +632,20 @@
       .maplibregl-ctrl-bottom-left { left: 0 !important; }
       .map-controls-left { left: 0; }
       .legend { left: 0; bottom: 120px; padding: 12px 14px; }
+      .map-status { max-width: calc(100% - 32px); white-space: nowrap; }
+      .plan-view { padding: 18px 16px; }
+      .plan-view-actions { gap: 7px; }
     }
   </style>
 </head>
 <body>
   <div id="wrap">
     <div id="map">
+      <div class="map-status" id="map-status" role="status" aria-live="polite">
+        <span class="map-status-dot" aria-hidden="true"></span>
+        <span id="map-status-text">正在加载地图…</span>
+        <button id="map-retry" type="button" hidden>重试</button>
+      </div>
       <div class="top-tabs">
         <button class="top-tab active" id="top-tab-explore" data-tab="explore">探索</button>
         <button class="top-tab" id="top-tab-plan" data-tab="plan">我的计划<span class="tab-count" id="plan-count">0</span></button>
@@ -723,15 +753,22 @@
       <div class="tab-view" id="tab-plan" style="display:none;">
         <div class="plan-view">
           <div class="plan-view-head">
-            <div>
+            <div class="plan-view-title">
               <h4>我的计划</h4>
               <p class="plan-view-sub">已加入的出片点，勾选「计划网络」可在地图上连成路线。</p>
             </div>
-            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap;">
+            <div class="plan-view-actions">
               <label class="net-toggle">
                 <input type="checkbox" id="net-toggle" /> 计划网络
               </label>
-              <button class="plan-nav-btn" id="amap-nav-btn" title="用高德地图规划路线">🧭 高德导航</button>
+              <select class="nav-provider" id="nav-provider" aria-label="选择导航软件" title="选择导航软件">
+                <option value="amap">高德（GCJ-02）</option>
+                <option value="baidu">百度（WGS-84）</option>
+                <option value="tencent">腾讯（WGS-84）</option>
+                <option value="google">Google Maps（WGS-84）</option>
+                <option value="osm">OpenStreetMap（WGS-84）</option>
+              </select>
+              <button class="plan-nav-btn" id="amap-nav-btn" title="用所选地图规划路线">🧭 导航</button>
               <button class="plan-io-btn" id="plan-export-btn" title="把当前计划导出为 JSON 文件，可分享给朋友导入">导出</button>
               <button class="plan-io-btn" id="plan-import-btn" title="从 JSON 文件导入计划">导入</button>
               <input type="file" id="plan-file-input" accept=".json,application/json" style="display:none" />
@@ -761,6 +798,22 @@
       attributionControl: false // 禁用默认版权控件，下方手动加一个（否则会出现两套署名）
     });
 
+    let mapReady = false;
+    function setMapStatus(state, text, retry) {
+      const el = document.getElementById('map-status');
+      const textEl = document.getElementById('map-status-text');
+      const retryEl = document.getElementById('map-retry');
+      if (!el || !textEl || !retryEl) return;
+      el.classList.toggle('error', state === 'error');
+      el.hidden = state === 'ready';
+      textEl.textContent = text;
+      retryEl.hidden = !retry;
+    }
+    document.getElementById('map-retry').addEventListener('click', () => window.location.reload());
+    map.on('error', (event) => {
+      if (!mapReady && event && event.error) setMapStatus('error', '地图底图加载失败，请检查网络后重试', true);
+    });
+
     // 左上角：缩放按钮 + 指南针（showCompass: true）
     map.addControl(new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-left');
     // 左下角最底部：数据来源署名（唯一的版权控件；compact 模式收起为小气泡）
@@ -781,24 +834,28 @@
       let spots, metro;
       try {
         [spots, metro] = await Promise.all([
-          fetch('spots.json').then(r => r.json()),
-          fetch('metro.json').then(r => r.json())
+          fetch('spots.json').then(r => { if (!r.ok) throw new Error(`spots.json: ${r.status}`); return r.json(); }),
+          fetch('metro.json').then(r => { if (!r.ok) throw new Error(`metro.json: ${r.status}`); return r.json(); })
         ]);
       } catch (err) {
         // 常见原因：直接双击 index.html 走 file:// 协议，浏览器拦截了 fetch
         document.getElementById('load-error').style.display = 'block';
-        return;
+        throw err;
       }
 
       // 直接用原始 WGS-84 坐标（OpenFreeMap/OSM 底图无需纠偏）
-      spotsData = spots.spots;
+      // 保留原始外链作为第一优先级；外链不可访问时，回退到仓库内已有的本地图片。
+      spotsData = spots.spots.map((spot, index) => ({
+        ...spot,
+        local_image: index === 1 ? 'assets/photos/rencai-park.jpg' : `assets/photos/spot-${String(index).padStart(2, '0')}.jpg`
+      }));
       metroData = metro.stations;
 
       const spotFeatures = spotsData.map(s => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
         // tags 存成 JSON 字符串，避免 MapLibre 把数组序列化后类型歧义；showSpot 里会再解析回数组
-        properties: { name: s.name, tags: JSON.stringify(s.tags), note: s.note, bestTime: s.best_time, image: s.image, refs: JSON.stringify(s.refs || []) }
+        properties: { name: s.name, tags: JSON.stringify(s.tags), note: s.note, bestTime: s.best_time, image: s.image, localImage: s.local_image, refs: JSON.stringify(s.refs || []) }
       }));
 
       const metroFeatures = metroData.map(m => ({
@@ -937,16 +994,23 @@
       const imgWrap = document.getElementById('c-img-wrap');
       const img = document.getElementById('c-img');
       const fallback = document.getElementById('c-img-fallback');
-      if (props.image) {
+      if (props.image || props.localImage) {
         // 重置：显示 img，隐藏占位
         img.style.display = 'block';
         if (fallback) fallback.style.display = 'none';
+        let triedLocal = false;
         img.onerror = () => {
-          // 加载失败 → 显示占位提示
+          // 原始外链失败时，优先回退到仓库内的本地照片。
+          if (!triedLocal && props.localImage && props.localImage !== props.image) {
+            triedLocal = true;
+            img.src = props.localImage;
+            return;
+          }
+          // 本地照片也失败 → 显示占位提示
           img.style.display = 'none';
           if (fallback) fallback.style.display = 'flex';
         };
-        img.src = props.image;
+        img.src = props.image || props.localImage;
         img.alt = props.name;
         imgWrap.style.display = 'block';
       } else {
@@ -1036,7 +1100,7 @@
 
             if (type === 'spot') {
               const s = spotsData.find(x => x.name === name);
-              showSpot({ name: s.name, tags: s.tags, note: s.note, bestTime: s.best_time, image: s.image, refs: s.refs }, lng, lat);
+              showSpot({ name: s.name, tags: s.tags, note: s.note, bestTime: s.best_time, image: s.image, localImage: s.local_image, refs: s.refs }, lng, lat);
             } else {
               const m = metroData.find(x => x.name === name);
               map.flyTo({ center: [lng, lat], zoom: 14 });
@@ -1152,11 +1216,17 @@
       const finishStyleSwap = async () => {
         if (finished) return;
         finished = true;
-        applyDarkTweaks();
-        await loadData();
-        applyMetroTone();
-        updateBuffer();
-        renderNetwork();
+        try {
+          setMapStatus('loading', '正在切换地图样式…', false);
+          applyDarkTweaks();
+          await loadData();
+          applyMetroTone();
+          updateBuffer();
+          renderNetwork();
+          if (mapReady) setMapStatus('ready', '', false);
+        } catch (err) {
+          setMapStatus('error', '地图样式或数据加载失败，请检查网络后重试', true);
+        }
       };
       map.setStyle(dark ? DARK_STYLE : LIGHT_STYLE);
       map.once('idle', finishStyleSwap);
@@ -1219,7 +1289,7 @@
       const s = spotsData.find(x => x.name === name);
       if (!s) { showToast('点位数据还在加载中，稍后再试', true); return; }
       switchTab('explore');
-      showSpot({ name: s.name, tags: s.tags, note: s.note, bestTime: s.best_time, image: s.image, refs: s.refs }, s.lng, s.lat);
+       showSpot({ name: s.name, tags: s.tags, note: s.note, bestTime: s.best_time, image: s.image, localImage: s.local_image, refs: s.refs }, s.lng, s.lat);
     }
 
     // 渲染计划列表 + tab 计数徽标 + 空状态
@@ -1317,6 +1387,7 @@
         app: 'shenzhen-photo-map',
         type: 'shooting-plan',
         version: 1,
+        coordinate_system: 'WGS84',
         exported_at: new Date().toISOString().slice(0, 10),
         spots: items
       };
@@ -1367,7 +1438,78 @@
       reader.readAsText(file);
     });
 
-    // 高德导航：把计划点串成路线，跳转高德（起点=我的位置或第一个点，终点=最后一个，途经中间点）
+    // 坐标约定：点位库和内部计算统一使用 WGS-84；仅在跳转导航软件时转换。
+    const GCJ_PI = Math.PI;
+    const GCJ_A = 6378245.0;
+    const GCJ_EE = 0.00669342162296594323;
+    function outOfChina(lng, lat) {
+      return lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271;
+    }
+    function transformLat(x, y) {
+      let ret = -100 + 2*x + 3*y + 0.2*y*y + 0.1*x*y + 0.2*Math.sqrt(Math.abs(x));
+      ret += (20*Math.sin(6*x*GCJ_PI) + 20*Math.sin(2*x*GCJ_PI))*2/3;
+      ret += (20*Math.sin(y*GCJ_PI) + 40*Math.sin(y/3*GCJ_PI))*2/3;
+      ret += (160*Math.sin(y/12*GCJ_PI) + 320*Math.sin(y*GCJ_PI/30))*2/3;
+      return ret;
+    }
+    function transformLng(x, y) {
+      let ret = 300 + x + 2*y + 0.1*x*x + 0.1*x*y + 0.1*Math.sqrt(Math.abs(x));
+      ret += (20*Math.sin(6*x*GCJ_PI) + 20*Math.sin(2*x*GCJ_PI))*2/3;
+      ret += (20*Math.sin(x*GCJ_PI) + 40*Math.sin(x/3*GCJ_PI))*2/3;
+      ret += (150*Math.sin(x/12*GCJ_PI) + 300*Math.sin(x/30*GCJ_PI))*2/3;
+      return ret;
+    }
+    function wgs84ToGcj02(lng, lat) {
+      if (outOfChina(lng, lat)) return { lng, lat };
+      const dLat = transformLat(lng - 105, lat - 35);
+      const dLng = transformLng(lng - 105, lat - 35);
+      const radLat = lat / 180 * GCJ_PI;
+      let magic = Math.sin(radLat);
+      magic = 1 - GCJ_EE * magic * magic;
+      const sqrtMagic = Math.sqrt(magic);
+      return {
+        lng: lng + (dLng * 180) / (GCJ_A / sqrtMagic * Math.cos(radLat) * GCJ_PI),
+        lat: lat + (dLat * 180) / (GCJ_A * (1 - GCJ_EE) / (magic * sqrtMagic) * GCJ_PI)
+      };
+    }
+    function navPoint(point, provider) {
+      return provider === 'amap' ? wgs84ToGcj02(point.lng, point.lat) : { lng: point.lng, lat: point.lat };
+    }
+    function buildNavigationUrl(provider, start, via, end) {
+      const s = navPoint(start, provider), e = navPoint(end, provider);
+      if (provider === 'baidu') {
+        const origin = `latlng:${s.lat},${s.lng}|name:${start.name || '我的位置'}`;
+        const destination = `latlng:${e.lat},${e.lng}|name:${end.name}`;
+        return 'https://api.map.baidu.com/direction?'
+          + `origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`
+          + '&mode=driving&region=深圳&output=html&coord_type=wgs84&src=webapp.shenzhen.photo.map';
+      }
+      if (provider === 'tencent') {
+        return 'https://apis.map.qq.com/uri/v1/routeplan?'
+          + `type=drive&from=${encodeURIComponent(start.name || '我的位置')}&fromcoord=${s.lat},${s.lng}`
+          + `&to=${encodeURIComponent(end.name)}&tocoord=${e.lat},${e.lng}&coord_type=1`;
+      }
+      if (provider === 'google') {
+        const waypoints = via.map(p => `${p.lat},${p.lng}`).join('|');
+        return 'https://www.google.com/maps/dir/?api=1'
+          + `&origin=${s.lat},${s.lng}&destination=${e.lat},${e.lng}&travelmode=driving`
+          + (waypoints ? `&waypoints=${encodeURIComponent(waypoints)}` : '');
+      }
+      if (provider === 'osm') {
+        return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${s.lat},${s.lng};${e.lat},${e.lng}`;
+      }
+      // 高德 URI 使用 GCJ-02；其 via 参数只传一个途经点，调用前由点击逻辑截取。
+      let url = 'https://uri.amap.com/navigation?'
+        + `from=${s.lng},${s.lat},${encodeURIComponent(myLocation ? '我的位置' : start.name)}`
+        + `&to=${e.lng},${e.lat},${encodeURIComponent(end.name)}&mode=car`;
+      if (via.length) {
+        const v = navPoint(via[0], provider);
+        url += `&via=${encodeURIComponent(`${v.lng},${v.lat}`)}`;
+      }
+      return url;
+    }
+
+    // 把计划点串成路线，按所选导航软件适配坐标与链接格式。
     document.getElementById('amap-nav-btn').addEventListener('click', () => {
       if (plan.length < 2) {
         alert('至少需要 2 个计划点才能规划路线');
@@ -1377,19 +1519,16 @@
       const start = myLocation || plan[0];
       const via = plan.slice(1, -1); // 中间途经点（去掉第一个和最后一个）
       const end = plan[plan.length - 1];
-
-      // 高德 URI 导航：from / to / via（途经点用 ; 分隔）
-      let url = 'https://uri.amap.com/navigation?'
-        + `from=${start.lng},${start.lat},${encodeURIComponent(myLocation ? '我的位置' : start.name)}`
-        + `&to=${end.lng},${end.lat},${encodeURIComponent(end.name)}`
-        + '&mode=car';
-
-      if (via.length > 0) {
-        const viaStr = via.map(p => `${p.lng},${p.lat}`).join(';');
-        url += `&via=${encodeURIComponent(viaStr)}`;
-      }
-
+      const provider = document.getElementById('nav-provider').value;
+      if (provider === 'amap' && via.length > 1) showToast('高德链接最多支持一个途经点，已使用第一个；计划顺序仍保留。', true);
+      if ((provider === 'baidu' || provider === 'tencent') && via.length) showToast('当前导航链接仅传递起点和终点，计划网络仍保留完整顺序。', true);
+      if (provider === 'osm' && via.length) showToast('OpenStreetMap 链接暂不传递途经点，仅导航起点到终点。', true);
+      const url = buildNavigationUrl(provider, start, provider === 'amap' ? via.slice(0, 1) : [], end);
       window.open(url, '_blank');
+    });
+    document.getElementById('nav-provider').addEventListener('change', (event) => {
+      const names = { amap: '高德', baidu: '百度', tencent: '腾讯', google: 'Google', osm: 'OSM' };
+      document.getElementById('amap-nav-btn').textContent = `🧭 ${names[event.target.value]}导航`;
     });
 
     // ============ Tab 切换（顶部平级 Tab + 悬浮面板） ============
@@ -1529,12 +1668,19 @@
 
     // 等底图样式加载完成后再加图层，避免时序报错
     map.on('load', async () => {
-      await loadData();
-      applyMetroTone();
-      loadPlan();
-      renderPlan();
-      updatePlanBtn();
-      renderNetwork();
+      try {
+        setMapStatus('loading', '正在加载地图数据…', false);
+        await loadData();
+        applyMetroTone();
+        loadPlan();
+        renderPlan();
+        updatePlanBtn();
+        renderNetwork();
+        mapReady = true;
+        setMapStatus('ready', '', false);
+      } catch (err) {
+        setMapStatus('error', '地图数据加载失败，请检查网络后重试', true);
+      }
     });
   </script>
 </body>

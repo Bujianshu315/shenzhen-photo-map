@@ -46,9 +46,19 @@ python -m http.server 8000
 npx serve .
 ```
 
+如果使用 Node，可用项目脚本复现运行和检查：
+
+```bash
+npm install
+npm start
+npm run check
+```
+
+计划页导航默认把项目内部的 WGS-84 坐标转换为高德所需的 GCJ-02；Google Maps 和 OpenStreetMap 保持 WGS-84。点位数据不要提前写死成高德坐标，避免重复偏移。
+
 然后浏览器打开 `http://localhost:8000`。
 
-部署：直接把本目录推到 GitHub 仓库，开启 GitHub Pages 即可（纯静态，零构建）。
+部署：直接把本目录推到 GitHub 仓库，开启 GitHub Pages 即可（纯静态，零构建）。第一次发布可参考 [GITHUB发布指南.md](GITHUB发布指南.md)。GitHub Pages 使用 HTTPS 提供 JSON 和图片文件，其他人打开网页不需要 Workbuddy；只有直接双击 `index.html` 时才会受到 `file://` 安全限制。
 
 ## 怎么加一个出片点
 

@@ -1,18 +1,22 @@
 /* 计划导入/导出闭环测试 v2：拦截 blob 拿导出内容，DataTransfer 模拟文件上传 */
 const puppeteer = require('puppeteer-core');
 const path = require('path');
+const fs = require('fs');
 
 const DL_DIR = 'C:/Users/森/Desktop/新建文件夹 (3)/出片地图-源码/docs/screenshots';
+const PORT = process.env.PORT || 8000;
+const CHROME_PATH = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
 (async () => {
+  if (!fs.existsSync(CHROME_PATH)) throw new Error(`Chrome not found: ${CHROME_PATH}`);
   const b = await puppeteer.launch({
-    executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    executablePath: CHROME_PATH,
     headless: true, args: ['--no-sandbox']
   });
   const p = await b.newPage();
   await p.setViewport({ width: 1440, height: 900 });
 
-  await p.goto('http://127.0.0.1:8000/index.html', { waitUntil: 'networkidle0', timeout: 30000 });
+  await p.goto(`http://127.0.0.1:${PORT}/index.html`, { waitUntil: 'networkidle0', timeout: 30000 });
   await p.waitForFunction(() => typeof spotsData !== 'undefined' && spotsData.length > 0, { timeout: 20000 });
   await new Promise(r => setTimeout(r, 1000));
 
