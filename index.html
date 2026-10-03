@@ -167,7 +167,7 @@
     /* ===== 悬浮面板（默认收起，点击下滑展开，半透明毛玻璃） ===== */
     #panel {
       position: absolute;
-      top: 64px; right: 12px;
+      top: 58px; right: 12px;
       width: 380px;
       max-height: calc(100% - 24px);
       background: rgba(255, 255, 255, 0.88);
@@ -180,11 +180,21 @@
       flex-direction: column;
       z-index: 6;
       overflow: hidden;
-      transform: translateY(calc(-100% - 20px));
+      /* 收起时必须完全移出视口（锚点 top:64px，多让 80px 兜底），否则顶部会残留白条 */
+      transform: translateY(calc(-100% - 80px));
+      visibility: hidden;
       transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0s linear 0.32s,
                   background-color 0.8s ease, border-color 0.8s ease;
     }
-    #panel.open { transform: translateY(0); }
+    /* 打开时从 tab 药丸（z-index 8）下方滑出，视觉上像从菜单展开 */
+    #panel.open {
+      transform: translateY(0);
+      visibility: visible;
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0s,
+                  background-color 0.8s ease, border-color 0.8s ease;
+    }
     #panel .panel-head { padding: 22px 24px 16px; border-bottom: 1px solid var(--border); position: relative; }
     #panel .panel-head h3 { font-size: 15px; font-weight: 700; color: var(--text-strong); letter-spacing: 0.3px; }
     #panel .panel-head p { font-size: 12px; color: var(--text-faint); margin-top: 6px; line-height: 1.6; font-weight: 400; }
@@ -753,14 +763,14 @@
 
     // 左上角：缩放按钮 + 指南针（showCompass: true）
     map.addControl(new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }), 'top-left');
-    // 左下角（缩放按钮上方）：比例尺
-    map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
-    // 左下角：数据来源署名（唯一的版权控件；compact 模式收起为小气泡，展开不与右侧图例重叠）
+    // 左下角最底部：数据来源署名（唯一的版权控件；compact 模式收起为小气泡）
     // 注：底图自带的 OpenFreeMap/OpenMapTiles 署名会由控件自动拼接，customAttribution 只需补 OSM 数据署名
     map.addControl(new maplibregl.AttributionControl({
       compact: true,
       customAttribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
     }), 'bottom-left');
+    // 署名上方：比例尺
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
 
     // ============ 2. 加载数据并标注 ============
     let metroFC = null;
