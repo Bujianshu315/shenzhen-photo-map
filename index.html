@@ -385,6 +385,11 @@
       gap: 10px;
       z-index: 5;
     }
+    /* 让 MapLibre 原生控件（缩放/指南针/比例尺/署名）与自定义左侧按钮左边缘对齐 */
+    .maplibregl-ctrl-top-left,
+    .maplibregl-ctrl-bottom-left {
+      left: 20px !important;
+    }
     .map-ctrl-btn {
       width: 42px; height: 42px;
       background: var(--surface);
@@ -601,6 +606,9 @@
         width: auto; max-height: 55%;
         transform: translateY(calc(100% + 24px));
       }
+      .maplibregl-ctrl-top-left,
+      .maplibregl-ctrl-bottom-left { left: 12px !important; }
+      .map-controls-left { left: 12px; }
       .legend { left: 12px; bottom: 120px; padding: 12px 14px; }
     }
   </style>
