@@ -21,6 +21,12 @@ if (spots && Array.isArray(spots.spots)) {
     if (typeof spot.image === 'string' && spot.image.startsWith('assets/')) {
       if (!fs.existsSync(path.join(root, spot.image))) errors.push(`${spot.name}: missing ${spot.image}`);
     }
+    if (spot.photo_status !== undefined && spot.photo_status !== 'unavailable') errors.push(`${spot.name}: unsupported photo_status ${spot.photo_status}`);
+    if (spot.photo_status !== 'unavailable') {
+      const localName = index === 1 ? 'rencai-park.webp' : `spot-${String(index).padStart(2, '0')}.webp`;
+      const localPath = path.join(root, 'assets', 'photos', 'webp', localName);
+      if (!fs.existsSync(localPath)) errors.push(`${spot.name}: missing local WebP assets/photos/webp/${localName}`);
+    }
   });
 }
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');

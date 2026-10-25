@@ -22,7 +22,10 @@
           "label": "图片 © Sparktour · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Shenzhen_Bay_Bridge_To_HK_on_Shenzhen_Side.jpg"
         }
-      ]
+      ],
+      "district": "南山区",
+      "direction": 45,
+      "stand": "海边栈道观景平台（示例值，待现场核实）"
     },
     {
       "name": "人才公园",
@@ -35,13 +38,14 @@
       ],
       "note": "湖面倒映华润大厦，夜晚灯光亮起是拍城市夜景的绝佳机位；周五/六及节假日有灯光秀，星光桥与 π 桥是核心观赏位（13号线人才公园站B1口）",
       "best_time": "夜晚",
-      "image": "assets/photos/rencai-park.jpg",
+      "image": "assets/photos/webp/rencai-park.webp",
       "refs": [
         {
           "label": "创新南山：南山灯光秀攻略",
           "url": "https://www.toutiao.com/article/7681300832427508230/"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "莲花山公园",
@@ -60,7 +64,8 @@
           "label": "图片 © Ermell · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Lianhuashan_Park_Shenzen_China_1310769.jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "东门老街",
@@ -84,7 +89,8 @@
           "label": "图片 © MNXANL · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:201609_Dongmen,_Shenzhen_2.jpg"
         }
-      ]
+      ],
+      "district": "罗湖区"
     },
     {
       "name": "海上世界",
@@ -107,7 +113,8 @@
           "label": "图片 © Charlie fong · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Sea_World_in_Shekou_Shenzhen2021.jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "欢乐海岸",
@@ -126,7 +133,8 @@
           "label": "图片 © wanghongliu · CC BY-SA 3.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:%E6%AC%A2%E4%B9%90%E6%B5%B7%E5%B2%B8_OCT_Harbour_-_panoramio.jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "梧桐山",
@@ -145,11 +153,12 @@
           "label": "图片 © Zhongmin Luimina Chouisa HOo · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:SZ_%E6%B7%B1%E5%9C%B3_Shenzhen_%E7%BE%85%E6%B9%96_Luohu_%E6%A2%A7%E6%A1%90%E5%B1%B1%E5%8D%97%E7%AB%99_Wutong_Mountain_South_Station_concourse_January_2024_R12S_01.jpg"
         }
-      ]
+      ],
+      "district": "罗湖区"
     },
     {
       "name": "甘坑客家小镇",
-      "lng": 114.0982880,
+      "lng": 114.098288,
       "lat": 22.6590086,
       "tags": [
         "古风",
@@ -164,7 +173,8 @@
           "label": "图片 © Lhzss8 · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:%E7%94%98%E5%9D%91%E7%AB%99B%E5%87%BA%E5%8F%A3.jpg"
         }
-      ]
+      ],
+      "district": "龙岗区"
     },
     {
       "name": "岗厦北站 5 号出口",
@@ -187,7 +197,8 @@
           "label": "图片 © Timothytyy · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Gangxia_North_station_Line_11_westbound_platform.jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "卓悦中心（福华一路）",
@@ -210,7 +221,8 @@
           "label": "图片 © ShenzhenPages · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Huawei_Store_at_One_Avenue_in_Shenzhen,_China.jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "卓悦中心北区停车场出口",
@@ -232,7 +244,8 @@
           "label": "图片 © Vikarna · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Futian_20220624.jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "「深圳四件套」十字路口",
@@ -259,7 +272,8 @@
           "label": "图片 © Chris from Shenzhen, China · CC BY-SA 2.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Shenzhen_CFC_Changfu_Centre_Storm_coming_Shenzhen_China_(35966356760).jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "岗厦站 B 出口扶梯",
@@ -281,7 +295,8 @@
           "label": "图片 © Vikarna · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Futian_20220624.jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "大疆「天空之城」· 石鼓花园机位",
@@ -304,7 +319,8 @@
           "label": "图片 © 花浅葱 · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:DJI_Headquarters_Tower_(cropped).jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "金地威新科技园 ·「盗梦空间」机位",
@@ -327,7 +343,8 @@
           "label": "图片 © LAUDM Hausdb RIWAMo · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:SZ_%E6%B7%B1%E5%9C%B3_Shenzhen_%E5%8D%97%E9%A0%AD%E8%A1%97_Nantou_Street_%E6%B7%B1%E5%9C%B3%E5%8D%97%E5%B1%B1%E5%8D%9A%E7%89%A9%E9%A4%A8_Nanshan_Museum_%E5%B1%95%E8%A6%BD_exhibition_%E5%8D%B0%E5%8A%A0%E5%B8%9D%E5%9C%8B_Inca_Emperors_%E5%A4%AA%E9%99%BD%E7%9A%84%E5%AD%90%E6%B0%91_The_Inca_and_Their_Tawantinsuyu_The_Land_of_Four_Quarters_May_2024_R12S_634.jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "万象天地 5 楼连廊",
@@ -350,7 +367,8 @@
           "label": "图片 © Härmägeddon · Public domain · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Bug_Dome_by_WEAK!_in_SZHK_Biennale_2009.jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "南山公园（83 号路灯 / 齐天亭）",
@@ -373,7 +391,8 @@
           "label": "图片 © JHH755 · CC BY-SA 3.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:%E5%A4%A7%E5%8D%97%E5%B1%B1.JPG"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "金地威新中心 A 座 36F 空中大堂",
@@ -387,6 +406,7 @@
       "note": "免费开放的「天空之镜」，免刷卡电梯上楼，整面落地窗正对深圳湾，春笋春茧尽收眼底（2号线科苑站C口）",
       "best_time": "17:00-19:00",
       "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Skyline_in_Shenzhen_%2820250327%29.jpg/960px-Skyline_in_Shenzhen_%2820250327%29.jpg",
+      "photo_status": "unavailable",
       "refs": [
         {
           "label": "南山文体通：深圳最美夜景机位",
@@ -400,7 +420,8 @@
           "label": "图片 © Fumikas Sagisavas · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Skyline_in_Shenzhen_(20250327).jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "文华大厦西座 30 层",
@@ -414,6 +435,7 @@
       "note": "「深圳曼哈顿」经典高位：地王大厦、京基100、平安三地标同框，日落金光照楼（2号线黄贝岭站H/G2口）",
       "best_time": "日落 / 夜晚",
       "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Skyline_of_Shenzhen_Bay_Port_From_the_South.jpg/960px-Skyline_of_Shenzhen_Bay_Port_From_the_South.jpg",
+      "photo_status": "unavailable",
       "refs": [
         {
           "label": "腾讯新闻：深圳大片机位攻略",
@@ -423,7 +445,8 @@
           "label": "图片 © Charlie fong · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Skyline_of_Shenzhen_Bay_Port_From_the_South.jpg"
         }
-      ]
+      ],
+      "district": "罗湖区"
     },
     {
       "name": "塘朗山公园 · 梅林后山",
@@ -450,7 +473,8 @@
           "label": "图片 © Dinkun Chen · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:TANGLANG_MOUNTAIN,_SHENZHEN_(3).jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "深湾汇云中心观景台",
@@ -473,7 +497,8 @@
           "label": "图片 © Charlie fong · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Skyline_of_Shenzhen_Bay_Port_From_the_South.jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "铁仔山公园",
@@ -496,7 +521,8 @@
           "label": "图片 © Mx. Granger · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:%E5%AE%9D%E5%AE%89%E8%A5%BF%E6%B9%BE%E7%BA%A2%E6%A0%91%E6%9E%97%E5%85%AC%E5%9B%AD_1.jpg"
         }
-      ]
+      ],
+      "district": "宝安区"
     },
     {
       "name": "深圳湾公园站 D2 出口扶梯",
@@ -519,7 +545,8 @@
           "label": "图片 © Sparktour · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Shenzhen_Bay_Bridge_To_HK_on_Shenzhen_Side.jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "西湾栈道 · 沿江高速桥下",
@@ -542,7 +569,8 @@
           "label": "图片 © Sparktour · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Sunset_in_Senzhen_Bay_(Deep_Bay)_Bridge.jpg"
         }
-      ]
+      ],
+      "district": "宝安区"
     },
     {
       "name": "盐田港",
@@ -565,7 +593,8 @@
           "label": "图片 © Gigel.atat · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Yantian-port_expansion.jpg"
         }
-      ]
+      ],
+      "district": "盐田区"
     },
     {
       "name": "东涌穿鼻岩",
@@ -588,7 +617,8 @@
           "label": "图片 © Clestur · Public domain · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Sunset_on_Xichong.JPG"
         }
-      ]
+      ],
+      "district": "龙岗区"
     },
     {
       "name": "深圳天文台",
@@ -611,7 +641,8 @@
           "label": "图片 © NOIRLab/NSF/AURA/ P. Horálek (Institute of Physics in Opava) · CC BY 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Night_Sky_from_Hawai%E2%80%98i_and_Chile_(iotw2225c).jpg"
         }
-      ]
+      ],
+      "district": "龙岗区"
     },
     {
       "name": "太子湾 K11 顶层空中花园",
@@ -634,7 +665,8 @@
           "label": "图片 © NAN LIU · CC BY-SA 2.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:K11_Shenzhen_-_54496015988.jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "K11 ECOAST 海滨艺术区",
@@ -657,7 +689,8 @@
           "label": "图片 © Thomas Brown · CC BY 2.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Sunset_Over_Tai_Po_Marshes,_Shenzhen_Bay_%26_China_(6027268599).jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "后海站 E 出口水池",
@@ -679,7 +712,8 @@
           "label": "图片 © TWS LUOK Mingaowpuo · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:SZ_%E6%B7%B1%E5%9C%B3_Shenzhen_%E5%8D%97%E5%B1%B1%E5%8D%80_Nanshan_%E6%B7%B1%E5%9C%B3%E7%81%A3_Shenzhen_Bay_MixC_mall_Zone_A_shop_BVLGARI_Store_window_May_2026_N13P_08.jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "岗厦北站「深圳之眼」",
@@ -706,7 +740,8 @@
           "label": "图片 © Timothytyy · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Line_10_southbound_platform_at_Gangxia_North_station.jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "钟书阁（欢乐港湾）",
@@ -729,7 +764,8 @@
           "label": "图片 © Mrsabuydee · CC BY 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:DujiangyanZhongshuge.jpg"
         }
-      ]
+      ],
+      "district": "宝安区"
     },
     {
       "name": "光明文化艺术中心「光明之眼」",
@@ -756,7 +792,8 @@
           "label": "图片 © 林凯 · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Guangming_Culture_and_Art_Center.jpg"
         }
-      ]
+      ],
+      "district": "光明区"
     },
     {
       "name": "深业上城",
@@ -779,7 +816,8 @@
           "label": "图片 © Husyewl Lmsiuyu RAUOM · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:SZ_%E6%B7%B1%E5%9C%B3_Shenzhen_%E7%A6%8F%E7%94%B0_Futian_%E7%AD%8D%E5%B4%97%E8%A5%BF%E8%B7%AF_Sungang_West_Road_%E6%B7%B1%E6%A5%AD%E4%B8%8A%E5%9F%8E_UpperHills_mall_shop_November_2023_R12S_01.jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "玛丝菲尔艺术大楼",
@@ -802,7 +840,8 @@
           "label": "图片 © NAN LIU · CC BY-SA 2.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:%E7%8E%9B%E4%B8%9D%E8%8F%B2%E5%B0%94%E5%A4%A7%E5%8E%A64.jpg"
         }
-      ]
+      ],
+      "district": "龙华区"
     },
     {
       "name": "中洲湾 C Future City",
@@ -825,7 +864,8 @@
           "label": "图片 © BISLTAIO Tosmacia · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:SZ_%E6%B7%B1%E5%9C%B3_Shenzhen_%E7%A6%8F%E7%94%B0_Futian_%E9%8A%80%E6%B2%99%E8%B7%AF_YinSha_Road_%E4%B8%AD%E6%B4%B2%E7%81%A3_C_Future_City_Mall_June_2024_R12S_238.jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "皇岗文化广场",
@@ -839,6 +879,7 @@
       "note": "深圳独一份古今同框：庙宇飞檐朱墙 vs 背后摩天楼，汉服旗袍出片圣地（7号线皇岗村站，出站步行约10分钟）",
       "best_time": "16:00-18:00",
       "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/HUANGGANG_ROAD%2C_SHENZHEN_%283%29.jpg/960px-HUANGGANG_ROAD%2C_SHENZHEN_%283%29.jpg",
+      "photo_status": "unavailable",
       "refs": [
         {
           "label": "小红书搜索「皇岗 古今同框」",
@@ -848,7 +889,8 @@
           "label": "图片 © Dinkun Chen · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:HUANGGANG_ROAD,_SHENZHEN_(3).jpg"
         }
-      ]
+      ],
+      "district": "福田区"
     },
     {
       "name": "华侨城生态广场 · 凤凰花连廊",
@@ -871,7 +913,8 @@
           "label": "图片 © Dinkun Chen · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Delonix_regia_in_China_(11).jpg"
         }
-      ]
+      ],
+      "district": "南山区"
     },
     {
       "name": "「湾区之光」摩天轮（合和大厦路口）",
@@ -894,7 +937,8 @@
           "label": "图片 © edo-biscuit · CC BY-SA 4.0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:Bay_Glory_Shenzhen_2021-02-07.jpg"
         }
-      ]
+      ],
+      "district": "宝安区"
     },
     {
       "name": "红山 6979",
@@ -917,7 +961,8 @@
           "label": "图片 © FMooezc Harmz · CC0 · Wikimedia Commons（场景示意，非机位实拍）",
           "url": "https://commons.wikimedia.org/wiki/File:SZ_Shenzhen_Longhua_District_6979_Hongshan_zone_mall_March_2025_R12S_19.jpg"
         }
-      ]
+      ],
+      "district": "龙华区"
     }
   ]
 }
