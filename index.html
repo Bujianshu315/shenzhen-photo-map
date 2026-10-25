@@ -1010,6 +1010,8 @@
       style: document.body.classList.contains('dark') ? DARK_STYLE : LIGHT_STYLE, // MiriaGo 同款开源底图，不挑环境
       center: [114.05, 22.55], // 深圳福田/南山一带（标准 WGS-84 坐标）
       zoom: 12, // 放大比例尺，聚焦深圳市区
+      maxBounds: [[113.72, 22.37], [114.68, 22.85]], // 视野锁死深圳尺度：全国尺度的边界画法（无九段线等）因此永远渲染不出来
+      minZoom: 9, // 最小 9 级，配合 maxBounds 双保险
       attributionControl: false // 禁用默认版权控件，下方手动加一个（否则会出现两套署名）
     });
 
@@ -1035,7 +1037,7 @@
     // 注：底图自带的 OpenFreeMap/OpenMapTiles 署名会由控件自动拼接，customAttribution 只需补 OSM 数据署名
     map.addControl(new maplibregl.AttributionControl({
       compact: true,
-      customAttribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+      customAttribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors · 边界画法仅代表开源数据，不代表作者立场'
     }), 'bottom-left');
     // 署名上方：比例尺
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');

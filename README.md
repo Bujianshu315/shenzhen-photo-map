@@ -84,7 +84,7 @@ npm run check
 本项目代码使用 MIT License 开源，但项目中展示或访问的第三方数据不属于本项目：
 
 - **地铁站数据**（`metro.json`）：来自 [OpenStreetMap](https://www.openstreetmap.org/)（通过 Overpass API 查询，含线路号），© OpenStreetMap contributors，遵循 [ODbL 协议](https://opendatacommons.org/licenses/odbl/)。
-- **地图底图**：来自 [OpenFreeMap](https://openfreemap.org/)（基于 OpenStreetMap 数据），使用时应保留相应署名。
+- **地图底图**：来自 [OpenFreeMap](https://openfreemap.org/)（基于 OpenStreetMap 数据），使用时应保留相应署名。开源数据的行政边界画法（如全国尺度细节）不代表作者立场；本项目为个人实验作品，非商业地图服务。
 - **出片点数据**（`spots.json`）：作者自维护。详情图优先加载仓库内 `assets/photos/webp/` 的 WebP 缩略图，外链图片作为备用来源。使用 Wikimedia Commons 图片的点位应保留作者和许可证来源链接；部分图片仅作场景参考，并非对应机位的实拍。
 - 导航能力由高德地图 URI API 提供，路线计算不在本项目内进行。
 
